@@ -667,4 +667,89 @@ helm get --help
 #   values      download the values file for a named release
 ```
 
+### 21. Uninstalling Helm charts
+
+Most resource will get deleted with `helm uninstall` command
+
+but some resources such as volumes or services manually created will be remain, so we need to manually delete them
+
+```sh
+helm list
+# NAME     NAMESPACE REVISION UPDATED                               STATUS   CHART            APP VERSION
+# local-wp default   1        2025-05-16 18:26:49.292553 +1000 AEST deployed wordpress-24.2.3 6.8.0
+
+helm uninstall local-wp
+# release "local-wp" uninstalled
+
+k get pods
+# No resources found in default namespace.
+
+k get svc
+# NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                         AGE
+# kubernetes   ClusterIP   10.96.0.1       <none>        443/TCP                         21h
+# local-wp     NodePort    10.110.21.172   <none>        8080:31482/TCP,8443:31514/TCP   12h
+
+# "local-wp" services is the one we manually created
+k delete svc local-wp
+# service "local-wp" deleted
+
+k get pv,pvc
+# NAME                                                        CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS     CLAIM                             STORAGECLASS   VOLUMEATTRIBUTESCLASS   REASON   AGE
+# persistentvolume/pvc-d4a66f5b-9344-4e40-875c-d823e52cec54   8Gi        RWO            Delete           Bound      default/data-local-wp-mariadb-0   standard       <unset>                          12h
+# persistentvolume/pvc-e4579f9f-762f-46e9-960a-2d84d9bc47da   10Gi       RWO            Delete           Released   default/local-wp-wordpress        standard       <unset>                          12h
+
+# NAME                                            STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+# persistentvolumeclaim/data-local-wp-mariadb-0   Bound    pvc-d4a66f5b-9344-4e40-875c-d823e52cec54   8Gi        RWO            standard       <unset>                 12h
+
+k get pvc
+# NAME                      STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+# data-local-wp-mariadb-0   Bound    pvc-d4a66f5b-9344-4e40-875c-d823e52cec54   8Gi        RWO            standard       <unset>                 12h
+
+k describe pvc data-local-wp-mariadb-0
+# Name:          data-local-wp-mariadb-0
+# Namespace:     default
+# StorageClass:  standard
+# Status:        Bound
+# Volume:        pvc-d4a66f5b-9344-4e40-875c-d823e52cec54
+# Labels:        app.kubernetes.io/component=primary
+#                app.kubernetes.io/instance=local-wp
+#                app.kubernetes.io/name=mariadb
+#                app.kubernetes.io/part-of=mariadb
+# Annotations:   pv.kubernetes.io/bind-completed: yes
+#                pv.kubernetes.io/bound-by-controller: yes
+#                volume.beta.kubernetes.io/storage-provisioner: k8s.io/minikube-hostpath
+#                volume.kubernetes.io/storage-provisioner: k8s.io/minikube-hostpath
+# Finalizers:    [kubernetes.io/pvc-protection]
+# Capacity:      8Gi
+# Access Modes:  RWO
+# VolumeMode:    Filesystem
+# Used By:       <none>
+# Events:        <none>
+
+# StorageClass: standard
+k describe storageclass standard
+# Name:            standard
+# IsDefaultClass:  Yes
+# Annotations:     kubectl.kubernetes.io/last-applied-configuration={"apiVersion":"storage.k8s.io/v1","kind":"StorageClass","metadata":{"annotations":{"storageclass.kubernetes.io/is-default-class":"true"},"labels":{"addonmanager.kubernetes.io/mode":"EnsureExists"},"name":"standard"},"provisioner":"k8s.io/minikube-hostpath"}
+# ,storageclass.kubernetes.io/is-default-class=true
+# Provisioner:           k8s.io/minikube-hostpath
+# Parameters:            <none>
+# AllowVolumeExpansion:  <unset>
+# MountOptions:          <none>
+# ReclaimPolicy:         Delete
+# VolumeBindingMode:     Immediate
+# Events:                <none>
+```
+
+- StorageClass
+  - ReclaimPolicy: Delete
+    - it means when the volume gets deleted, the data will be deleted
+    - if it is **Retain**, the underline persisted volume will be remained after deleting
+
+```sh
+k delete pvc data-local-wp-mariadb-0
+k get pvc
+# No resources found in default namespace.
+```
+
 </details>

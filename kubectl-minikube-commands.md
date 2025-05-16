@@ -18,11 +18,17 @@ kubectl get pods
 kubectl get svc
 kubectl get secret
 kubectl get deploy
+kubectl get pv,pvc
+kubectl describe pvc data-local-wp-mariadb-0
+kubectl describe storageclass standard
 
 kubectl describe secret local-wp-wordpress
 kubectl describe pod local-wp-wordpress-77858b7665-j2jfb
 
+
 kubectl expose depl
 
 kubectl get secret local-wp-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d
+
+kubectl delete pvc data-local-wp-mariadb-0
 ```

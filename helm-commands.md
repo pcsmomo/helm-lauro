@@ -36,4 +36,7 @@ helm get --help
 #   metadata    This command fetches metadata for a given release
 #   notes       download the notes for a named release
 #   values      download the values file for a named release
+
+helm list
+helm uninstall local-wp
 ```
