@@ -181,4 +181,18 @@ minikube status
 minikube dashboard
 ```
 
+### 13. Installing Kubectl
+
+<https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/>
+
+```sh
+curl -LO https://dl.k8s.io/release/v1.33.0/bin/linux/arm64/kubectl
+
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+
+kubectl version --client
+# Client Version: version.Info{Major:"1", Minor:"27", GitVersion:"v1.27.3", GitCommit:"25b4e43193bcda6c7328a6d147b1fb73a33f1598", GitTreeState:"clean", BuildDate:"2023-06-14T09:47:38Z", GoVersion:"go1.20.5", Compiler:"gc", Platform:"darwin/arm64"}
+# Kustomize Version: v5.0.1
+```
+
 </details>
