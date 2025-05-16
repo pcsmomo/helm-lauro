@@ -22,5 +22,7 @@ kubectl get deploy
 kubectl describe secret local-wp-wordpress
 kubectl describe pod local-wp-wordpress-77858b7665-j2jfb
 
-kubectl expose deploy local-wp-wordpress --type=NodePort --name=local-wp
+kubectl expose depl
+
+kubectl get secret local-wp-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d
 ```

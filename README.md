@@ -607,4 +607,64 @@ minikube service local-wp
 
 ❌ However, my browser cannot access "<http://127.0.0.1:58305>" or "<http://127.0.0.1:58306>"
 
+### 20. Exploring the default Wordpress chart configuration
+
+- navigate <http://127.0.0.1:58305/wp-admin>
+- navigate <https://artifacthub.io/packages/helm/bitnami/wordpress?modal=values&path=wordpressUsername>
+- we can find the `username` but `password` is not present.
+
+```sh
+k describe secret local-wp-wordpress
+# Name:         local-wp-wordpress
+# Namespace:    default
+# Labels:       app.kubernetes.io/instance=local-wp
+#               app.kubernetes.io/managed-by=Helm
+#               app.kubernetes.io/name=wordpress
+#               app.kubernetes.io/version=6.8.0
+#               helm.sh/chart=wordpress-24.2.3
+# Annotations:  meta.helm.sh/release-name: local-wp
+#               meta.helm.sh/release-namespace: default
+
+# Type:  Opaque
+
+# Data
+# ====
+# wordpress-password:  10 bytes
+
+# it starts with `.data` and add the key name
+# it is encoded with base64
+k get secret local-wp-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d
+# PclkflpFhT%
+# exclude `%` sign
+```
+
+```sh
+helm show values bitnami/wordpress
+
+# "local-wp" is the helm name when I installed it locally
+# helm install local-wp bitnami/wordpress --version=24.2.3
+helm get values local-wp
+# USER-SUPPLIED VALUES:
+# null
+
+helm get values local-wp --all
+# ...
+
+helm get notes local-wp
+
+helm get metadata local-wp
+
+helm get --help
+# Usage:
+#   helm get [command]
+
+# Available Commands:
+#   all         download all information for a named release
+#   hooks       download all hooks for a named release
+#   manifest    download the manifest for a named release
+#   metadata    This command fetches metadata for a given release
+#   notes       download the notes for a named release
+#   values      download the values file for a named release
+```
+
 </details>
