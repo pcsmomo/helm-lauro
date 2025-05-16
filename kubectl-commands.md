@@ -17,9 +17,4 @@ helm search repo wordpress --versions
 helm show chart bitnami/wordpress
 helm show readme bitnami/wordpress
 helm show values bitnami/wordpress
-
-helm install --help
-# helm install [NAME] [CHART] [flags]
-
-helm install local-wp bitnami/wordpress --version=24.2.3
 ```

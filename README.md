@@ -193,11 +193,21 @@ sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 kubectl version --client
 # Client Version: version.Info{Major:"1", Minor:"27", GitVersion:"v1.27.3", GitCommit:"25b4e43193bcda6c7328a6d147b1fb73a33f1598", GitTreeState:"clean", BuildDate:"2023-06-14T09:47:38Z", GoVersion:"go1.20.5", Compiler:"gc", Platform:"darwin/arm64"}
 # Kustomize Version: v5.0.1
+
+# I had installed helm using brew before
+brew upgrade kubectl
+kubectl version
+# Client Version: v1.33.1
+# Kustomize Version: v5.6.0
+# Server Version: v1.32.0
+
+rm /usr/local/bin/kubectl
 ```
 
 ### 14. Installing Helm
 
 ```sh
+# I had installed helm using brew before
 brew upgrade helm
 
 helm version
@@ -434,5 +444,167 @@ helm repo --help
 
 helm repo remove bitnami
 ```
+
+### 19. Installing the Wordpress Helm chart
+
+```sh
+kubectl version
+# Client Version: v1.33.1
+# Kustomize Version: v5.6.0
+# Server Version: v1.32.0
+
+kubectl config current-context
+# minikube
+
+k get namespaces
+# NAME                   STATUS   AGE
+# default                Active   9h
+# kube-node-lease        Active   9h
+# kube-public            Active   9h
+# kube-system            Active   9h
+# kubernetes-dashboard   Active   9h
+
+k get pods
+# No resources found in default namespace.
+```
+
+```sh
+helm search repo wordpress
+# NAME                    CHART VERSION APP VERSION DESCRIPTION
+# bitnami/wordpress       24.2.6        6.8.1       WordPress is the world's most popular blogging ...
+# bitnami/wordpress-intel 2.1.31        6.1.1       DEPRECATED WordPress for Intel is the most popu...
+
+helm install --help
+# helm install [NAME] [CHART] [flags]
+
+# the latest version is 24.2.6 but we install lower version to try to upgrade later
+helm install local-wp bitnami/wordpress --version=24.2.3
+# NAME: local-wp
+# LAST DEPLOYED: Fri May 16 18:26:49 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+# NOTES:
+# CHART NAME: wordpress
+# CHART VERSION: 24.2.3
+# APP VERSION: 6.8.0
+
+# Did you know there are enterprise versions of the Bitnami catalog? For enhanced secure software supply chain features, unlimited pulls from Docker, LTS support, or application customization, see Bitnami Premium or Tanzu Application Catalog. See https://www.arrow.com/globalecs/na/vendors/bitnami for more information.
+
+# ** Please be patient while the chart is being deployed **
+
+# Your WordPress site can be accessed through the following DNS name from within your cluster:
+
+#     local-wp-wordpress.default.svc.cluster.local (port 80)
+
+# To access your WordPress site from outside the cluster follow the steps below:
+
+# 1. Get the WordPress URL by running these commands:
+
+#   NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+#         Watch the status with: 'kubectl get svc --namespace default -w local-wp-wordpress'
+
+#    export SERVICE_IP=$(kubectl get svc --namespace default local-wp-wordpress --template "{{ range (index .status.loadBalancer.ingress 0) }}{{ . }}{{ end }}")
+#    echo "WordPress URL: http://$SERVICE_IP/"
+#    echo "WordPress Admin URL: http://$SERVICE_IP/admin"
+
+# 2. Open a browser and access WordPress using the obtained URL.
+
+# 3. Login with the following credentials below to see your blog:
+
+#   echo Username: user
+#   echo Password: $(kubectl get secret --namespace default local-wp-wordpress -o jsonpath="{.data.wordpress-password}" | base64 -d)
+
+# WARNING: There are "resources" sections in the chart not set. Using "resourcesPreset" is not recommended for production. For production installations, please set the following values according to your workload needs:
+#   - resources
+# +info https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+```
+
+```sh
+k get pods
+# NAME                                  READY   STATUS     RESTARTS   AGE
+# local-wp-mariadb-0                    0/1     Init:0/1   0          39s
+# local-wp-wordpress-77858b7665-j2jfb   0/1     Running    0          39s
+
+k get svc
+# NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+# kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP                      9h
+# local-wp-mariadb            ClusterIP      10.105.85.243    <none>        3306/TCP                     87s
+# local-wp-mariadb-headless   ClusterIP      None             <none>        3306/TCP                     87s
+# local-wp-wordpress          LoadBalancer   10.100.170.163   <pending>     80:30567/TCP,443:30132/TCP   87s
+
+k get secret
+# NAME                             TYPE                 DATA   AGE
+# local-wp-mariadb                 Opaque               2      2m13s
+# local-wp-wordpress               Opaque               1      2m13s
+# sh.helm.release.v1.local-wp.v1   helm.sh/release.v1   1      2m13s
+
+k describe secret local-wp-wordpress
+# Name:         local-wp-wordpress
+# Namespace:    default
+# Labels:       app.kubernetes.io/instance=local-wp
+#               app.kubernetes.io/managed-by=Helm
+#               app.kubernetes.io/name=wordpress
+#               app.kubernetes.io/version=6.8.0
+#               helm.sh/chart=wordpress-24.2.3
+# Annotations:  meta.helm.sh/release-name: local-wp
+#               meta.helm.sh/release-namespace: default
+
+# Type:  Opaque
+
+# Data
+# ====
+# wordpress-password:  10 bytes
+```
+
+`sh.helm.release.v1.local-wp.v1` secret is used by helm and it's important
+
+#### ‼️ **Expose deployment to access with minikube**
+
+```sh
+k describe pod local-wp-wordpress-77858b7665-j2jfb
+```
+
+```sh
+kubectl get deploy
+# NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+# local-wp-wordpress   0/1     1            0           5m4s
+
+# it already exists by load balancer service
+kubectl expose deploy local-wp-wordpress --type=NodePort
+# Error from server (AlreadyExists): services "local-wp-wordpress" already exists
+
+# expose deployment
+kubectl expose deploy local-wp-wordpress --type=NodePort --name=local-wp
+# service/local-wp exposed
+
+k get svc
+# NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+# kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP                         9h
+# local-wp                    NodePort       10.110.21.172    <none>        8080:31482/TCP,8443:31514/TCP   52s
+# ...
+
+minikube service local-wp
+# |-----------|----------|-------------|---------------------------|
+# | NAMESPACE |   NAME   | TARGET PORT |            URL            |
+# |-----------|----------|-------------|---------------------------|
+# | default   | local-wp | port-1/8080 | http://192.168.49.2:31482 |
+# |           |          | port-2/8443 | http://192.168.49.2:31514 |
+# |-----------|----------|-------------|---------------------------|
+# 🏃  Starting tunnel for service local-wp.
+# |-----------|----------|-------------|------------------------|
+# | NAMESPACE |   NAME   | TARGET PORT |          URL           |
+# |-----------|----------|-------------|------------------------|
+# | default   | local-wp |             | http://127.0.0.1:58305 |
+# |           |          |             | http://127.0.0.1:58306 |
+# |-----------|----------|-------------|------------------------|
+# [default local-wp  http://127.0.0.1:58305
+# http://127.0.0.1:58306]
+# ❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+# ^C✋  Stopping tunnel for service local-wp.
+```
+
+❌ However, my browser cannot access "<http://127.0.0.1:58305>" or "<http://127.0.0.1:58306>"
 
 </details>
