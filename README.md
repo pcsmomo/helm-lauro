@@ -237,4 +237,11 @@ helm version
    2. Revert to previous versions of your applications using Helm’s rollback feature.
    3. Understand how Helm manages release history and revisions.
 
+### 17. Exploring ArtifactHub
+
+[Artifact Hub](https://artifacthub.io/)
+
+- [chart - wordpress](https://artifacthub.io/packages/helm/bitnami/wordpress)
+- [chart - nginx](https://artifacthub.io/packages/helm/bitnami/nginx)
+
 </details>
