@@ -204,4 +204,18 @@ helm version
 # version.BuildInfo{Version:"v3.17.3", GitCommit:"e4da49785aa6e6ee2b86efd5dd9e43400318262b", GitTreeState:"clean", GoVersion:"go1.24.2"}
 ```
 
+### 15. Installing and configuring VS Code
+
+- Kubernetes
+- Prettier
+
+```json
+// settings.json
+{
+  "[helm]": {
+    "editor.formatOnSave": false
+  },
+}
+```
+
 </details>
