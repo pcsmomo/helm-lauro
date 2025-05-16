@@ -195,4 +195,13 @@ kubectl version --client
 # Kustomize Version: v5.0.1
 ```
 
+### 14. Installing Helm
+
+```sh
+brew upgrade helm
+
+helm version
+# version.BuildInfo{Version:"v3.17.3", GitCommit:"e4da49785aa6e6ee2b86efd5dd9e43400318262b", GitTreeState:"clean", GoVersion:"go1.24.2"}
+```
+
 </details>
