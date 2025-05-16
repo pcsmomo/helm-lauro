@@ -241,7 +241,198 @@ helm version
 
 [Artifact Hub](https://artifacthub.io/)
 
+- Application version: The underlying application's version
+- Chart version: the actual chart version
+
 - [chart - wordpress](https://artifacthub.io/packages/helm/bitnami/wordpress)
 - [chart - nginx](https://artifacthub.io/packages/helm/bitnami/nginx)
+
+### 18. Managing Helm repositories with the Helm CLI
+
+#### Add bitnami repository
+
+```sh
+helm repo add bitnami https://charts.bitnami.com/bitnami
+
+helm repo list
+# NAME    URL
+# bitnami https://charts.bitnami.com/bitnami
+
+# repo is stored in local, so regularly updated it
+helm repo update
+# Hang tight while we grab the latest from your chart repositories...
+# ...Successfully got an update from the "bitnami" chart repository
+# Update Complete. ⎈Happy Helming!⎈
+
+helm search repo wordpress
+# NAME                    CHART VERSION APP VERSION DESCRIPTION
+# bitnami/wordpress       24.2.6        6.8.1       WordPress is the world's most popular blogging ...
+# bitnami/wordpress-intel 2.1.31        6.1.1       DEPRECATED WordPress for Intel is the most popu...
+
+# they are from "bitnami"
+helm search repo prometheus
+# NAME                                         CHART VERSION APP VERSION DESCRIPTION
+# bitnami/kube-prometheus                      11.1.11       0.82.2      Prometheus Operator provides easy monitoring de...
+# bitnami/prometheus                           2.0.6         3.3.1       Prometheus is an open source monitoring and ale...
+# bitnami/wavefront-prometheus-storage-adapter 2.3.3         1.0.7       DEPRECATED Wavefront Storage Adapter is a Prome...
+# bitnami/grafana-mimir                        2.0.5         2.16.0      Grafana Mimir is an open source, horizontally s...
+# bitnami/node-exporter                        4.5.13        1.9.1       Prometheus exporter for hardware and OS metrics...
+# bitnami/thanos                               16.0.6        0.38.0      Thanos is a highly available metrics system tha...
+# bitnami/victoriametrics                      0.1.11        1.117.1     VictoriaMetrics is a fast, cost-effective, and ...
+# bitnami/kube-state-metrics                   5.0.8         2.15.0      kube-state-metrics is a simple service that lis...
+# bitnami/mariadb                              20.5.5        11.4.6      MariaDB is an open source, community-developed ...
+# bitnami/mariadb-galera                       14.2.5        11.4.6      MariaDB Galera is a multi-primary database clus...
+```
+
+#### Add prometheus repository
+
+```sh
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+# "prometheus-community" has been added to your repositories
+
+helm repo list
+# NAME                 URL
+# bitnami              https://charts.bitnami.com/bitnami
+# prometheus-community https://prometheus-community.github.io/helm-charts
+
+helm search repo prometheus
+# NAME                                               CHART VERSION APP VERSION DESCRIPTION
+# bitnami/kube-prometheus                            11.1.11       0.82.2      Prometheus Operator provides easy monitoring de...
+# bitnami/prometheus                                 2.0.6         3.3.1       Prometheus is an open source monitoring and ale...
+# bitnami/wavefront-prometheus-storage-adapter       2.3.3         1.0.7       DEPRECATED Wavefront Storage Adapter is a Prome...
+# prometheus-community/kube-prometheus-stack         72.4.0        v0.82.2     kube-prometheus-stack collects Kubernetes manif...
+# prometheus-community/prometheus                    27.14.0       v3.3.1      Prometheus is a monitoring system and time seri...
+# prometheus-community/prometheus-adapter            4.14.1        v0.12.0     A Helm chart for k8s prometheus adapter
+# prometheus-community/prometheus-blackbox-exporter  9.6.0         v0.26.0     Prometheus Blackbox Exporter
+# prometheus-community/prometheus-cloudwatch-expo... 0.27.0        0.16.0      A Helm chart for prometheus cloudwatch-exporter
+# prometheus-community/prometheus-conntrack-stats... 0.5.19        v0.4.27     A Helm chart for conntrack-stats-exporter
+# prometheus-community/prometheus-consul-exporter    1.0.0         0.4.0       A Helm chart for the Prometheus Consul Exporter
+# prometheus-community/prometheus-couchdb-exporter   1.0.0         1.0         A Helm chart to export the metrics from couchdb...
+# prometheus-community/prometheus-druid-exporter     1.1.1         v0.11.0     Druid exporter to monitor druid metrics with Pr...
+# prometheus-community/prometheus-elasticsearch-e... 6.7.2         v1.9.0      Elasticsearch stats exporter for Prometheus
+# prometheus-community/prometheus-fastly-exporter    0.6.0         v9.1.1      A Helm chart for the Prometheus Fastly Exporter
+# prometheus-community/prometheus-ipmi-exporter      0.6.0         v1.10.0     This is an IPMI exporter for Prometheus.
+# prometheus-community/prometheus-json-exporter      0.16.1        v0.7.0      Install prometheus-json-exporter
+# prometheus-community/prometheus-kafka-exporter     2.12.1        v1.9.0      A Helm chart to export the metrics from Kafka i...
+# prometheus-community/prometheus-memcached-exporter 0.4.0         v0.15.0     Prometheus exporter for Memcached metrics
+# prometheus-community/prometheus-modbus-exporter    0.1.3         0.4.1       A Helm chart for prometheus-modbus-exporter
+# prometheus-community/prometheus-mongodb-exporter   3.12.0        0.44.0      A Prometheus exporter for MongoDB metrics
+# prometheus-community/prometheus-mysql-exporter     2.10.0        v0.17.2     A Helm chart for prometheus mysql exporter with...
+# prometheus-community/prometheus-nats-exporter      2.18.0        0.16.0      A Helm chart for prometheus-nats-exporter
+# prometheus-community/prometheus-nginx-exporter     1.4.1         1.4.2       A Helm chart for NGINX Prometheus Exporter
+# prometheus-community/prometheus-node-exporter      4.46.0        1.9.1       A Helm chart for prometheus node-exporter
+# prometheus-community/prometheus-opencost-exporter  0.1.2         1.108.0     Prometheus OpenCost Exporter
+# prometheus-community/prometheus-operator           9.3.2         0.38.1      DEPRECATED - This chart will be renamed. See ht...
+# prometheus-community/prometheus-operator-admiss... 0.24.2        0.82.0      Prometheus Operator Admission Webhook
+# prometheus-community/prometheus-operator-crds      20.0.0        v0.82.0     A Helm chart that collects custom resource defi...
+# prometheus-community/prometheus-pgbouncer-exporter 0.7.1         v0.10.2     A Helm chart for prometheus pgbouncer-exporter
+# prometheus-community/prometheus-pingdom-exporter   3.4.0         v0.5.0      A Helm chart for Prometheus Pingdom Exporter
+# prometheus-community/prometheus-pingmesh-exporter  0.4.2         v1.2.2      Prometheus Pingmesh Exporter
+# prometheus-community/prometheus-postgres-exporter  6.10.2        v0.17.1     A Helm chart for prometheus postgres-exporter
+# prometheus-community/prometheus-pushgateway        3.2.0         v1.11.1     A Helm chart for prometheus pushgateway
+# prometheus-community/prometheus-rabbitmq-exporter  2.1.1         1.0.0       Rabbitmq metrics exporter for prometheus
+# prometheus-community/prometheus-redis-exporter     6.10.2        v1.69.0     Prometheus exporter for Redis metrics
+# prometheus-community/prometheus-smartctl-exporter  0.15.1        v0.14.0     A Helm chart for Kubernetes
+# prometheus-community/prometheus-snmp-exporter      9.3.0         v0.28.0     Prometheus SNMP Exporter
+# prometheus-community/prometheus-sql-exporter       0.2.2         v0.5.9      Prometheus SQL Exporter
+# prometheus-community/prometheus-stackdriver-exp... 4.8.2         v0.18.0     Stackdriver exporter for Prometheus
+# prometheus-community/prometheus-statsd-exporter    0.15.0        v0.28.0     A Helm chart for prometheus stats-exporter
+# prometheus-community/prometheus-systemd-exporter   0.5.0         0.7.0       A Helm chart for prometheus systemd-exporter
+# prometheus-community/prometheus-to-sd              0.4.2         0.5.2       Scrape metrics stored in prometheus format and ...
+# prometheus-community/prometheus-windows-exporter   0.10.0        0.30.6      A Helm chart for prometheus windows-exporter
+# prometheus-community/prometheus-yet-another-clo... 0.40.1        v0.62.1     Yace - Yet Another CloudWatch Exporter
+# prometheus-community/alertmanager                  1.18.0        v0.28.1     The Alertmanager handles alerts sent by client ...
+# prometheus-community/alertmanager-snmp-notifier    1.0.0         v2.0.0      The SNMP Notifier handles alerts coming from Pr...
+# prometheus-community/jiralert                      1.7.2         v1.3.0      A Helm chart for Kubernetes to install jiralert
+# prometheus-community/kube-state-metrics            5.33.1        2.15.0      Install kube-state-metrics to generate and expo...
+# prometheus-community/prom-label-proxy              0.12.0        v0.11.0     A proxy that enforces a given label in a given ...
+# prometheus-community/yet-another-cloudwatch-exp... 0.39.1        v0.62.1     Yace - Yet Another CloudWatch Exporter
+# bitnami/grafana-mimir                              2.0.5         2.16.0      Grafana Mimir is an open source, horizontally s...
+# bitnami/node-exporter                              4.5.13        1.9.1       Prometheus exporter for hardware and OS metrics...
+# bitnami/thanos                                     16.0.6        0.38.0      Thanos is a highly available metrics system tha...
+# bitnami/victoriametrics                            0.1.11        1.117.1     VictoriaMetrics is a fast, cost-effective, and ...
+# bitnami/kube-state-metrics                         5.0.8         2.15.0      kube-state-metrics is a simple service that lis...
+# bitnami/mariadb                                    20.5.5        11.4.6      MariaDB is an open source, community-developed ...
+# bitnami/mariadb-galera                             14.2.5        11.4.6      MariaDB Galera is a multi-primary database clus...
+```
+
+```sh
+helm search repo prometheus --max-col-width 20
+```
+
+```sh
+helm show chart bitnami/wordpress
+# annotations:
+#   category: CMS
+#   images: |
+#     - name: apache-exporter
+#       image: docker.io/bitnami/apache-exporter:1.0.10-debian-12-r5
+#     - name: os-shell
+#       image: docker.io/bitnami/os-shell:12-debian-12-r43
+#     - name: wordpress
+#       image: docker.io/bitnami/wordpress:6.8.1-debian-12-r1
+#   licenses: Apache-2.0
+#   tanzuCategory: application
+# apiVersion: v2
+# appVersion: 6.8.1
+# dependencies:
+# - condition: memcached.enabled
+#   name: memcached
+#   repository: oci://registry-1.docker.io/bitnamicharts
+#   version: 7.x.x
+# - condition: mariadb.enabled
+#   name: mariadb
+#   repository: oci://registry-1.docker.io/bitnamicharts
+#   version: 20.x.x
+# - name: common
+#   repository: oci://registry-1.docker.io/bitnamicharts
+#   tags:
+#   - bitnami-common
+#   version: 2.x.x
+# description: WordPress is the world's most popular blogging and content management
+#   platform. Powerful yet simple, everyone from students to global corporations use
+#   it to build beautiful, functional websites.
+# home: https://bitnami.com
+# icon: https://dyltqmyl993wv.cloudfront.net/assets/stacks/wordpress/img/wordpress-stack-220x234.png
+# keywords:
+# - application
+# - blog
+# - cms
+# - http
+# - php
+# - web
+# - wordpress
+# maintainers:
+# - name: Broadcom, Inc. All Rights Reserved.
+#   url: https://github.com/bitnami/charts
+# name: wordpress
+# sources:
+# - https://github.com/bitnami/charts/tree/main/bitnami/wordpress
+# version: 24.2.6
+```
+
+```sh
+helm search repo cms
+# NAME                    CHART VERSION APP VERSION DESCRIPTION
+# bitnami/joomla          20.0.4        5.1.2       DEPRECATED Joomla! is an award winning open sou...
+# bitnami/drupal          21.2.8        11.1.7      Drupal is one of the most versatile open source...
+# bitnami/wordpress       24.2.6        6.8.1       WordPress is the world's most popular blogging ...
+# bitnami/wordpress-intel 2.1.31        6.1.1       DEPRECATED WordPress for Intel is the most popu...
+
+helm search repo wordpress --versions
+```
+
+```sh
+helm show chart bitnami/wordpress
+
+helm show readme bitnami/wordpress
+# as the same content as https://artifacthub.io/packages/helm/bitnami/wordpress
+
+helm show values bitnami/wordpress
+
+helm repo --help
+
+helm repo remove bitnami
+```
 
 </details>
