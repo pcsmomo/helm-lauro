@@ -15,10 +15,13 @@ kubectl version
 kubectl config current-context
 
 kubectl get pods
+kubectl get pods --watch
 kubectl get svc
 kubectl get secret
 kubectl get deploy
 kubectl get pv,pvc
+kubectl get secret,pod,deploy,svc
+
 kubectl describe pvc data-local-wp-mariadb-0
 kubectl describe storageclass standard
 

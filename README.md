@@ -752,4 +752,54 @@ k get pvc
 # No resources found in default namespace.
 ```
 
+### 22. Cleaning up Kubernetes resources
+
+#### Insteall and uninstall helm chart
+
+```sh
+helm install local-wp bitnami/wordpress --version=24.2.3
+k get pods --watch
+k get secrets
+k describe secret local-wp-mariadb
+# Data
+# ====
+# mariadb-password:       10 bytes
+# mariadb-root-password:  10 bytes
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-password}' | base64 -d
+# m9hu46Idn1%
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-root-password}' | base64 -d
+# QH52fQ4XIH%
+helm uninstall local-wp
+```
+
+#### Re install the helm chart without deleting previous volume
+
+```sh
+helm install local-wp bitnami/wordpress --version=24.2.3
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-password}' | base64 -d
+# SOTL0pUxku%
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-root-password}' | base64 -d
+# 4xAHsRVEMN%
+
+k logs local-wp-wordpress-77858b7665-tf7n6
+# wordpress 19:06:37.66 INFO  ==> Trying to connect to the database server
+```
+
+The password remained in the database (=volume) doesn't match with the new password in the app configuration
+
+```sh
+helm uninstall local-wp
+
+k get pvc --watch
+# NAME                      STATUS        VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+# data-local-wp-mariadb-0   Bound         pvc-8f23926e-10c9-4218-9738-96720aad4b03   8Gi        RWO            standard       <unset>                 10m
+# local-wp-wordpress        Terminating   pvc-1ab7f61d-5012-4049-bc9f-53a32555ceff   10Gi       RWO            standard       <unset>                 4m39s
+
+k delete pvc data-local-wp-mariadb-0
+
+k get secret,pod,deploy,svc
+# NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+# service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   44h
+```
+
 </details>
