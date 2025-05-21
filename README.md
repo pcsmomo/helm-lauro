@@ -606,6 +606,7 @@ minikube service local-wp
 ```
 
 ❌ However, my browser cannot access "<http://127.0.0.1:58305>" or "<http://127.0.0.1:58306>"
+✅ after a few days, I've tried exactly the same process, and it works. Hmm..
 
 ### 20. Exploring the default Wordpress chart configuration
 
@@ -666,6 +667,9 @@ helm get --help
 #   notes       download the notes for a named release
 #   values      download the values file for a named release
 ```
+
+- navigate <http://127.0.0.1:58305/wp-admin>
+- ✅ Login with the username, "user" and the password we can find above
 
 ### 21. Uninstalling Helm charts
 
@@ -800,6 +804,35 @@ k delete pvc data-local-wp-mariadb-0
 k get secret,pod,deploy,svc
 # NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
 # service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   44h
+```
+
+### 23. Setting custom values via the Helm CLI
+
+Navigate to see default values
+
+<https://artifacthub.io/packages/helm/bitnami/wordpress/24.2.5?modal=values&path=mariadb.auth.rootPassword>
+
+```sh
+helm install local-wp bitnami/wordpress --version=24.2.3 \
+  --set "mariadb.auth.rootPassword=myawesomepassword" \
+  --set "mariadb.auth.password=myuserpassword"
+```
+
+- ❌ the pod coudln't connect to database server during the first few tries.. even after deleting all pvc and pv
+- ✅ after 4-5 tries, it suddenly works. hmm
+
+```sh
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-password}' | base64 -d
+# myuserpassword%
+k get secret local-wp-mariadb -o jsonpath='{.data.mariadb-root-password}' | base64 -d
+# myawesomepassword%
+
+helm get values local-wp
+# USER-SUPPLIED VALUES:
+# mariadb:
+#   auth:
+#     password: myuserpassword
+#     rootPassword: myawesomepassword
 ```
 
 </details>
