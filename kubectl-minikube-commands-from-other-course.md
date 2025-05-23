@@ -1,4 +1,4 @@
-kubectl
+# Kubectl and Minikube Helm Commands used in other course
 
 ```sh
 kubectl version --client
