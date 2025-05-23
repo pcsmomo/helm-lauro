@@ -49,6 +49,20 @@ helm get --help
 helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml local-wp bitnami/wordpress --version 24.2.3
 helm upgrade --reuse-values local-wp bitnami/wordpress --version 24.2.6
 
+# testing failure with providing the wrong tag.
+helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml --set "image.tag=nonexistent" local-wp bitnami/wordpress --version 24.2.6
+# testing failure with providing the wrong tag.
+helm upgrade \
+  local-wp bitnami/wordpress \
+  --reuse-values \
+  --values 04-helm-fundamentals/28-upgrade-helm-release.yaml \
+  --set "image.tag=nonexistent" \
+  --version 24.2.6 \
+  --atomic \
+  --cleanup-on-fail \
+  --debug \
+  --timeout 2m
+
 helm history local-wp
 helm get values local-wp --revision 1
 

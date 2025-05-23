@@ -982,6 +982,7 @@ helm history local-wp
 ### 27. Rollbacks in Helm
 
 ```sh
+# testing failure with providing the wrong tag.
 helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml --set "image.tag=nonexistent" local-wp bitnami/wordpress --version 24.2.6
 
 k get pods
@@ -1071,5 +1072,139 @@ k get secrets
 ```
 
 v6 is for the revision 4 as we rollback to it.
+
+### 28. Upgrading Helm releases: Useful CLI flags
+
+Clean up resources
+
+```sh
+k get svc
+# NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+# kubernetes                  ClusterIP      10.96.0.1        <none>        443/TCP                         7d10h
+# local-wp                    NodePort       10.98.7.13       <none>        8080:32126/TCP,8443:30433/TCP   169m
+# local-wp-mariadb            ClusterIP      10.110.181.144   <none>        3306/TCP                        171m
+# local-wp-mariadb-headless   ClusterIP      None             <none>        3306/TCP                        171m
+# local-wp-wordpress          LoadBalancer   10.100.211.190   <pending>     80:30732/TCP,443:31284/TCP      171m
+
+k delete svc local-wp
+```
+
+Now, we want to change the type of default service, `local-wp-wordpress` to `NodePort` instead of LoadBalancer.
+
+<https://artifacthub.io/packages/helm/bitnami/wordpress/24.2.6?modal=values&path=service>
+
+```sh
+# 04-helm-fundamentals/28-upgrade-helm-release.yaml
+
+helm upgrade --reuse-values --values 04-helm-fundamentals/28-upgrade-helm-release.yaml local-wp bitnami/wordpress --version 24.2.6
+
+k get pods   # didn't change any
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# local-wp-mariadb-0                    1/1     Running   0          24m
+# local-wp-wordpress-6c8997fc5f-ttz7x   1/1     Running   0          23m
+# local-wp-wordpress-6c8997fc5f-z9spr   1/1     Running   0          24m
+
+k get svc
+# NAME                        TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+# kubernetes                  ClusterIP   10.96.0.1        <none>        443/TCP                      7d10h
+# local-wp-mariadb            ClusterIP   10.110.181.144   <none>        3306/TCP                     177m
+# local-wp-mariadb-headless   ClusterIP   None             <none>        3306/TCP                     177m
+# local-wp-wordpress          NodePort    10.100.211.190   <none>        80:30732/TCP,443:31284/TCP   177m
+```
+
+the type of `local-wp-wordpress` has changed
+
+```sh
+# testing failure with providing the wrong tag.
+helm upgrade \
+  local-wp bitnami/wordpress \
+  --reuse-values \
+  --values 04-helm-fundamentals/28-upgrade-helm-release.yaml \
+  --set "image.tag=nonexistent" \
+  --version 24.2.6 \
+  --atomic \
+  --cleanup-on-fail \
+  --debug \
+  --timeout 2m
+```
+
+- `--atomic`: if the upgrade fails for any reason, helm will automatically roll back the release to its previous state.
+- `--cleanup-on-fail`: if the upgrade fails, it will remove any resources that were part of the failed upgrade attempt but were not part of the previous successful release.
+- `--debug`: to see detailed information.
+- `--timeout`: the default timeout is 5m, so it makes it shorter.
+
+```sh
+helm history local-wp
+# REVISION UPDATED                  STATUS          CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded      wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded      wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 superseded      wordpress-24.2.3 6.8.0       Upgrade complete
+# 4        Fri May 23 19:02:45 2025 superseded      wordpress-24.2.6 6.8.1       Upgrade complete
+# 5        Fri May 23 19:10:33 2025 superseded      wordpress-24.2.6 6.8.1       Upgrade complete
+# 6        Fri May 23 19:14:12 2025 superseded      wordpress-24.2.6 6.8.1       Rollback to 4
+# 7        Fri May 23 19:26:57 2025 deployed        wordpress-24.2.6 6.8.1       Upgrade complete
+# 8        Fri May 23 19:35:18 2025 pending-upgrade wordpress-24.2.6 6.8.1       Preparing upgrade
+
+helm history local-wp
+# REVISION UPDATED                  STATUS     CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 4        Fri May 23 19:02:45 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 5        Fri May 23 19:10:33 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 6        Fri May 23 19:14:12 2025 superseded wordpress-24.2.6 6.8.1       Rollback to 4
+# 7        Fri May 23 19:26:57 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 8        Fri May 23 19:35:18 2025 failed     wordpress-24.2.6 6.8.1       Upgrade "local-wp" failed: context deadline exceeded
+# 9        Fri May 23 19:37:19 2025 deployed   wordpress-24.2.6 6.8.1       Rollback to 7
+
+helm get values local-wp --revision 8
+# USER-SUPPLIED VALUES:
+# autoscaling:
+#   enabled: true
+#   maxReplicas: 10
+#   minReplicas: 2
+# existingSecret: custom-wp-credentials
+# image:
+#   tag: nonexistent
+# replicaCount: 3
+# service:
+#   type: NodePort
+# wordpressUsername: noah
+
+helm get values local-wp --revision 9
+# USER-SUPPLIED VALUES:
+# autoscaling:
+#   enabled: true
+#   maxReplicas: 10
+#   minReplicas: 2
+# existingSecret: custom-wp-credentials
+# replicaCount: 3
+# service:
+#   type: NodePort
+# wordpressUsername: noah
+```
+
+- even with `--cleanup-on-fail` flag, `ReplicaSet` won't get deleted
+- Because `ReplicaSet` gets created by `deployment` not by `helm`
+- we need to delete them manually
+
+```sh
+k get rs
+# NAME                            DESIRED   CURRENT   READY   AGE
+# local-wp-wordpress-5fd4d7bf87   0         0         0       4m1s
+# local-wp-wordpress-6c8997fc5f   2         2         2       36m
+
+k delete rs local-wp-wordpress-5fd4d7bf87
+
+k describe deployment local-wp-wordpress
+```
+
+#### Cleanup before wrapping up this section
+
+```sh
+helm uninstall local-wp
+k delete pvc data-local-wp-mariadb-0
+kubectl get secret,pod,deploy,svc,pv,pvc
+```
 
 </details>
