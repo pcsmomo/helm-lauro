@@ -27,11 +27,12 @@ kubectl describe storageclass standard
 
 kubectl describe pod local-wp-wordpress-77858b7665-j2jfb
 
-
 kubectl expose deploy local-wp-wordpress --type=NodePort --name=local-wp
 
 kubectl describe secret local-wp-wordpress
 kubectl get secret local-wp-wordpress -o jsonpath='{.data.wordpress-password}' | base64 -d
 
 kubectl delete pvc data-local-wp-mariadb-0
+
+kubectl create secret generic custom-wp-credentials --from-literal wordpress-password=noahpassword
 ```

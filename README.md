@@ -835,4 +835,51 @@ helm get values local-wp
 #     rootPassword: myawesomepassword
 ```
 
+### 24. Setting custom values via files
+
+<https://artifacthub.io/packages/helm/bitnami/wordpress/24.2.5?modal=values&path=existingSecret>
+
+```sh
+# 04-helm-fundamentals/24-custom-values.yaml
+
+k create secret generic custom-wp-credentials --from-literal wordpress-password=noahpassword
+
+helm install local-wp bitnami/wordpress --version=24.2.3\
+  -f 04-helm-fundamentals/24-custom-values.yaml
+
+helm get values local-wp
+# USER-SUPPLIED VALUES:
+# existingSecret: custom-wp-credentials
+# replicaCount: 3
+# wordpressUsername: noah
+
+kubectl expose deploy local-wp-wordpress --type=NodePort --name=local-wp
+# service/local-wp exposed
+
+k get svc
+# NAME                        TYPE           CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+# local-wp                    NodePort       10.98.7.13       <none>        8080:32126/TCP,8443:30433/TCP   2s
+
+minikube service local-wp
+# |-----------|----------|-------------|---------------------------|
+# | NAMESPACE |   NAME   | TARGET PORT |            URL            |
+# |-----------|----------|-------------|---------------------------|
+# | default   | local-wp | port-1/8080 | http://192.168.49.2:32126 |
+# |           |          | port-2/8443 | http://192.168.49.2:30433 |
+# |-----------|----------|-------------|---------------------------|
+# 🏃  Starting tunnel for service local-wp.
+# |-----------|----------|-------------|------------------------|
+# | NAMESPACE |   NAME   | TARGET PORT |          URL           |
+# |-----------|----------|-------------|------------------------|
+# | default   | local-wp |             | http://127.0.0.1:59205 |
+# |           |          |             | http://127.0.0.1:59206 |
+# |-----------|----------|-------------|------------------------|
+# [default local-wp  http://127.0.0.1:59205
+# http://127.0.0.1:59206]
+# ❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+```
+
+- navigate <http://127.0.0.1:59205/wp-admin>
+- login with my custom credential
+
 </details>

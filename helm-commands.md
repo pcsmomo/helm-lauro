@@ -25,6 +25,8 @@ helm install local-wp bitnami/wordpress --version=24.2.3
 helm install local-wp bitnami/wordpress --version=24.2.3\
   --set "mariadb.auth.rootPassword=myawesomepassword"\
   --set "mariadb.auth.password=myuserpassword"
+helm install local-wp bitnami/wordpress --version=24.2.3\
+  -f 04-helm-fundamentals/24-custom-values.yaml
 
 helm get values local-wp
 helm get values local-wp --a;;
