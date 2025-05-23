@@ -940,4 +940,43 @@ k get secret
 
 - secret v1, v2 and v3 match with the local-wp revision
 
+### 26. Upgrading Helm releases: Setting new chart versions
+
+```sh
+helm repo update
+# Hang tight while we grab the latest from your chart repositories...
+# ...Successfully got an update from the "prometheus-community" chart repository
+# ...Successfully got an update from the "bitnami" chart repository
+# Update Complete. ⎈Happy Helming!⎈
+
+helm search repo wordpress
+# NAME                    CHART VERSION APP VERSION DESCRIPTION
+# bitnami/wordpress       24.2.6        6.8.1       WordPress is the world's most popular blogging ...
+
+helm upgrade --reuse-values local-wp bitnami/wordpress --version 24.2.6
+
+helm get values local-wp
+# USER-SUPPLIED VALUES:
+# autoscaling:
+#   enabled: true
+#   maxReplicas: 10
+#   minReplicas: 2
+# existingSecret: custom-wp-credentials
+# replicaCount: 3
+# wordpressUsername: noah
+
+k get pods # new pods are running
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# local-wp-mariadb-0                    1/1     Running   0          3m48s
+# local-wp-wordpress-6c8997fc5f-ttz7x   1/1     Running   0          3m5s
+# local-wp-wordpress-6c8997fc5f-z9spr   1/1     Running   0          3m49s
+
+helm history local-wp
+# REVISION UPDATED                  STATUS     CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 4        Fri May 23 19:02:45 2025 deployed   wordpress-24.2.6 6.8.1       Upgrade complete
+```
+
 </details>

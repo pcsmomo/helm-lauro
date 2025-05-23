@@ -9,7 +9,10 @@ helm repo update
 helm repo --help
 helm repo remove bitnami
 
+helm repo update
+
 helm search repo wordpress
+helm search repo bitnami/wordpress
 helm search repo prometheus --max-col-width 20
 helm search repo cms
 helm search repo wordpress --versions
@@ -44,6 +47,7 @@ helm get --help
 #   values      download the values file for a named release
 
 helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml local-wp bitnami/wordpress --version 24.2.3
+helm upgrade --reuse-values local-wp bitnami/wordpress --version 24.2.6
 
 helm history local-wp
 helm get values local-wp --revision 1
