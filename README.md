@@ -979,4 +979,97 @@ helm history local-wp
 # 4        Fri May 23 19:02:45 2025 deployed   wordpress-24.2.6 6.8.1       Upgrade complete
 ```
 
+### 27. Rollbacks in Helm
+
+```sh
+helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml --set "image.tag=nonexistent" local-wp bitnami/wordpress --version 24.2.6
+
+k get pods
+# NAME                                  READY   STATUS                  RESTARTS   AGE
+# local-wp-mariadb-0                    1/1     Running                 0          8m7s
+# local-wp-wordpress-5fd4d7bf87-2htnl   0/1     Init:ImagePullBackOff   0          20s
+# local-wp-wordpress-6c8997fc5f-ttz7x   1/1     Running                 0          7m24s
+# local-wp-wordpress-6c8997fc5f-z9spr   1/1     Running                 0          8m8s
+
+k describe pod local-wp-wordpress-5fd4d7bf87-2htnl
+# Events:
+#   Type     Reason     Age                From               Message
+#   ----     ------     ----               ----               -------
+#   Normal   Scheduled  48s                default-scheduler  Successfully assigned default/local-wp-wordpress-5fd4d7bf87-2htnl to minikube
+#   Normal   Pulling    32s (x2 over 48s)  kubelet            Pulling image "docker.io/bitnami/wordpress:nonexistent"
+#   Warning  Failed     28s (x2 over 44s)  kubelet            Failed to pull image "docker.io/bitnami/wordpress:nonexistent": Error response from daemon: manifest for bitnami/wordpress:nonexistent not found: manifest unknown: manifest unknown
+#   Warning  Failed     28s (x2 over 44s)  kubelet            Error: ErrImagePull
+#   Normal   BackOff    14s (x2 over 43s)  kubelet            Back-off pulling image "docker.io/bitnami/wordpress:nonexistent"
+#   Warning  Failed     14s (x2 over 43s)  kubelet            Error: ImagePullBackOff
+```
+
+- new helm chart is install but it has been failed.
+- so we need to rollback
+
+```sh
+helm history local-wp
+# REVISION UPDATED                  STATUS     CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 4        Fri May 23 19:02:45 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 5        Fri May 23 19:10:33 2025 deployed   wordpress-24.2.6 6.8.1       Upgrade complete
+
+helm rollback local-wp 4  # revision number
+# Rollback was a success! Happy Helming!
+
+helm history local-wp
+# REVISION UPDATED                  STATUS     CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 4        Fri May 23 19:02:45 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 5        Fri May 23 19:10:33 2025 superseded wordpress-24.2.6 6.8.1       Upgrade complete
+# 6        Fri May 23 19:14:12 2025 deployed   wordpress-24.2.6 6.8.1       Rollback to 4
+
+k get pods
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# local-wp-mariadb-0                    1/1     Running   0          11m
+# local-wp-wordpress-6c8997fc5f-ttz7x   1/1     Running   0          11m
+# local-wp-wordpress-6c8997fc5f-z9spr   1/1     Running   0          11m
+```
+
+when the upgrade is failed, the old pods don't get deleted and they remains
+
+```sh
+k get rs  # ReplicaSet
+# NAME                            DESIRED   CURRENT   READY   AGE
+# local-wp-wordpress-5fd4d7bf87   0         0         0       5m13s
+# local-wp-wordpress-6c8997fc5f   2         2         2       13m
+# local-wp-wordpress-777bbfbffc   0         0         0       165m
+
+k get deployment
+# NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+# local-wp-wordpress   2/2     2            2           166m
+```
+
+When rollback helm chart, some resources don't get deleted automatically
+
+So we will have to manually delete them
+
+```sh
+k delete rs local-wp-wordpress-5fd4d7bf87
+k delete rs local-wp-wordpress-777bbfbffc
+```
+
+```sh
+k get secrets
+# NAME                             TYPE                 DATA   AGE
+# custom-wp-credentials            Opaque               1      170m
+# local-wp-mariadb                 Opaque               2      169m
+# sh.helm.release.v1.local-wp.v1   helm.sh/release.v1   1      169m
+# sh.helm.release.v1.local-wp.v2   helm.sh/release.v1   1      149m
+# sh.helm.release.v1.local-wp.v3   helm.sh/release.v1   1      146m
+# sh.helm.release.v1.local-wp.v4   helm.sh/release.v1   1      16m
+# sh.helm.release.v1.local-wp.v5   helm.sh/release.v1   1      8m48s
+# sh.helm.release.v1.local-wp.v6   helm.sh/release.v1   1      5m10s
+```
+
+v6 is for the revision 4 as we rollback to it.
+
 </details>
