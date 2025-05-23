@@ -4,4 +4,7 @@
 
 wordpressUsername: noah
 existingSecret: custom-wp-credentials
-replicaCount: 3
+autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10

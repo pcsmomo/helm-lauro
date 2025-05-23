@@ -18,6 +18,8 @@ helm show chart bitnami/wordpress
 helm show readme bitnami/wordpress
 helm show values bitnami/wordpress
 
+helm list
+
 helm install --help
 # helm install [NAME] [CHART] [flags]
 
@@ -29,9 +31,7 @@ helm install local-wp bitnami/wordpress --version=24.2.3\
   -f 04-helm-fundamentals/24-custom-values.yaml
 
 helm get values local-wp
-helm get values local-wp --a;;
-
-helm get values local-wp
+helm get values local-wp --all
 helm get notes local-wp
 helm get metadata local-wp
 helm get --help
@@ -43,6 +43,10 @@ helm get --help
 #   notes       download the notes for a named release
 #   values      download the values file for a named release
 
-helm list
+helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml local-wp bitnami/wordpress --version 24.2.3
+
+helm history local-wp
+helm get values local-wp --revision 1
+
 helm uninstall local-wp
 ```

@@ -853,6 +853,13 @@ helm get values local-wp
 # replicaCount: 3
 # wordpressUsername: noah
 
+k get pods
+# NAME                                  READY   STATUS    RESTARTS      AGE
+# local-wp-mariadb-0                    1/1     Running   0             58s
+# local-wp-wordpress-777bbfbffc-bcb46   0/1     Running   1 (15s ago)   58s
+# local-wp-wordpress-777bbfbffc-q9b4p   0/1     Running   1 (15s ago)   58s
+# local-wp-wordpress-777bbfbffc-w7ltx   1/1     Running   0             58s
+
 kubectl expose deploy local-wp-wordpress --type=NodePort --name=local-wp
 # service/local-wp exposed
 
@@ -881,5 +888,56 @@ minikube service local-wp
 
 - navigate <http://127.0.0.1:59205/wp-admin>
 - login with my custom credential
+
+### 25. Upgrading Helm releases: Setting new values
+
+- update `04-helm-fundamentals/24-custom-values.yaml` file
+
+```sh
+helm upgrade --reuse-values --values 04-helm-fundamentals/24-custom-values.yaml local-wp bitnami/wordpress --version 24.2.3
+
+helm get values local-wp
+# USER-SUPPLIED VALUES:
+# autoscaling:
+#   enabled: true
+#   maxReplicas: 10
+#   minReplicas: 2
+# existingSecret: custom-wp-credentials
+# replicaCount: 3
+# wordpressUsername: noah
+
+k get pods
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# local-wp-mariadb-0                    1/1     Running   0          20m
+# local-wp-wordpress-777bbfbffc-f7pxn   1/1     Running   0          37s
+# local-wp-wordpress-777bbfbffc-w7ltx   1/1     Running   0          20m
+```
+
+- `replicaCount` is not defined in `04-helm-fundamentals/24-custom-values.yaml`
+  - because the value was there in the previous status, and the value is reused now
+
+```sh
+helm history local-wp
+# REVISION UPDATED                  STATUS     CHART            APP VERSION DESCRIPTION
+# 1        Fri May 23 16:29:51 2025 superseded wordpress-24.2.3 6.8.0       Install complete
+# 2        Fri May 23 16:49:40 2025 superseded wordpress-24.2.3 6.8.0       Upgrade complete
+# 3        Fri May 23 16:52:34 2025 deployed   wordpress-24.2.3 6.8.0       Upgrade complete
+
+helm get values local-wp --revision 1
+# USER-SUPPLIED VALUES:
+# existingSecret: custom-wp-credentials
+# replicaCount: 3
+# wordpressUsername: noah
+
+k get secret
+# NAME                             TYPE                 DATA   AGE
+# custom-wp-credentials            Opaque               1      27m
+# local-wp-mariadb                 Opaque               2      25m
+# sh.helm.release.v1.local-wp.v1   helm.sh/release.v1   1      25m
+# sh.helm.release.v1.local-wp.v2   helm.sh/release.v1   1      5m59s
+# sh.helm.release.v1.local-wp.v3   helm.sh/release.v1   1      3m4s
+```
+
+- secret v1, v2 and v3 match with the local-wp revision
 
 </details>
