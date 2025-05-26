@@ -174,4 +174,33 @@ k get svc
 helm uninstall local-nginx
 ```
 
+### 33. Introduction to Go Templates: Part 1
+
+```sh
+# ./05-creating-charts
+
+mkdir 33-intro-go-templating
+cd 33-intro-go-templating
+touch Chart.yaml values.yaml
+mkdir templates
+```
+
+- Modify `Chart.yaml`
+
+```sh
+# ./05-creating-charts/33-intro-go-templating
+helm template .
+
+# nothing displayed. because we don't have anything in template yet
+```
+
+- Add `sandbox.yaml` and modify it
+
+```sh
+helm template .
+# ---
+# # Source: intro-go-templating/templates/sandbox.yaml
+# test: true
+```
+
 </details>
