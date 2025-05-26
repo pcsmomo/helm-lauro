@@ -107,7 +107,7 @@ Kubernetes manifest templates that are rendered by Helm.
 ```sh
 # cd ./05-creating-charts
 
-helm template 32-nginx
+helm template 32-nginx-init
 # ---
 # # Source: nginx/templates/service.yaml
 # apiVersion: v1
@@ -148,13 +148,13 @@ helm template 32-nginx
 #           ports:
 #             - containerPort: 80
 
-helm lint 32-nginx
+helm lint 32-nginx-init
 # ==> Linting nginx
 # [INFO] Chart.yaml: icon is recommended
 
 # 1 chart(s) linted, 0 chart(s) failed
 
-helm install local-nginx 32-nginx
+helm install local-nginx 32-nginx-init
 # NAME: local-nginx
 # LAST DEPLOYED: Sat May 24 17:34:56 2025
 # NAMESPACE: default
