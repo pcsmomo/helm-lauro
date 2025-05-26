@@ -276,4 +276,59 @@ helm template .
 # test: i-am-string
 ```
 
+### 36. Adding first values to our values.yaml file
+
+```yaml
+# .05-creating-charts/nginx/values.yaml
+containerPorts:
+    http: 80
+```
+
+This `container port` is commonly used in both `deployment.yaml` and `service.yaml`
+
+```sh
+# .05-creating-charts/nginx
+
+helm template .
+# ---
+# # Source: nginx/templates/service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: nginx-svc
+#   labels:
+#     app: nginx
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: nginx
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 80
+# ---
+# # Source: nginx/templates/deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx
+#   labels:
+#     app: nginx
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: nginx
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx  # this name has to match the matchLabels in the selector
+#     spec:
+#       containers:
+#         - name: nginx
+#           image: "nginx:1.27.5"
+#           ports:
+#             - containerPort: 80
+```
+
 </details>
