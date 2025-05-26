@@ -176,6 +176,8 @@ helm uninstall local-nginx
 
 ### 33. Introduction to Go Templates: Part 1
 
+[Go templates](https://pkg.go.dev/text/template)
+
 ```sh
 # ./05-creating-charts
 
@@ -229,7 +231,7 @@ helm template .
 - use `{{- /* */}}`: remove white space
 
 ```sh
-# helm template .
+helm template .
 # ---
 # # Source: intro-go-templating/templates/sandbox.yaml
 # # I am a YAML comment, and I will remain in the generated YAML
@@ -237,6 +239,41 @@ helm template .
 # labels:
 #   app: release-name
 #   chart: intro-go-templating-0.1.0
+```
+
+### 34. Introduction to Go Templates: Part 2
+
+- [Useful template functions for Go templates](https://masterminds.github.io/sprig/strings.html)
+
+- `test: {{ lower .Values.test }}`
+
+```sh
+# .05-creating-charts/33-intro-go-templating
+helm template .
+# test: I am string
+```
+
+- `test: {{ replace " " "-" .Values.test }}`
+
+```sh
+helm template .
+# ---
+# test: I-am-string
+```
+
+#### Pipe operator
+
+They are all the same.
+
+- `test: {{ lower (replace " " "-" .Values.test) }}`
+- `test: {{ replace " " "-" .Values.test | lower }}`
+  - the result of the first function will be the argument for the next function
+- `test: {{ lower .Values.test | replace " " "-"}}`
+
+```sh
+helm template .
+# ---
+# test: i-am-string
 ```
 
 </details>
