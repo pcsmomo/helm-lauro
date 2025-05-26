@@ -2,6 +2,9 @@
 
 ## Folder structure
 
+- 05-creating-charts
+  - nginx
+  
 ## Summaries
 
 - [Section 02 - 04 Helm Fundamentals](./summary-02-04-helm-fundamentals.md)
@@ -98,5 +101,77 @@ Kubernetes manifest templates that are rendered by Helm.
 - `_helpers.tpl`
   - Contains template helper functions, which can be used to reduce duplication.
   - Files preceded with an underscore are not included in the final rendering from Helm.
+
+### 32. Creating our first Helm chart
+
+```sh
+# cd ./05-creating-charts
+
+helm template 32-nginx
+# ---
+# # Source: nginx/templates/service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: nginx-svc
+#   labels:
+#     app: nginx
+# spec:
+#   type: ClusterIP
+#   selector:
+#     app: nginx
+#   ports:
+#     - protocol: TCP
+#       port: 80
+#       targetPort: 80
+# ---
+# # Source: nginx/templates/deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: nginx
+#   labels:
+#     app: nginx
+# spec:
+#   replicas: 1
+#   selector:
+#     matchLabels:
+#       app: nginx
+#   template:
+#     metadata:
+#       labels:
+#         app: nginx  # this name has to match the matchLabels in the selector
+#     spec:
+#       containers:
+#         - name: nginx
+#           image: nginx:1.27.5
+#           ports:
+#             - containerPort: 80
+
+helm lint 32-nginx
+# ==> Linting nginx
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
+
+helm install local-nginx 32-nginx
+# NAME: local-nginx
+# LAST DEPLOYED: Sat May 24 17:34:56 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+
+k get pods
+# NAME                     READY   STATUS    RESTARTS   AGE
+# nginx-6cf4957f95-zc4ct   1/1     Running   0          58s
+
+k get svc
+# NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+# kubernetes   ClusterIP   10.96.0.1        <none>        443/TCP   8d
+# nginx-svc    ClusterIP   10.102.208.249   <none>        80/TCP    59s
+
+helm uninstall local-nginx
+```
 
 </details>

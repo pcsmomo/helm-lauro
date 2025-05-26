@@ -67,4 +67,8 @@ helm history local-wp
 helm get values local-wp --revision 1
 
 helm uninstall local-wp
+
+helm template nginx # folder
+helm lint nginx # folder
+
 ```
