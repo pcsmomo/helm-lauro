@@ -203,4 +203,40 @@ helm template .
 # test: true
 ```
 
+```sh
+helm template .
+# ---
+# # Source: intro-go-templating/templates/sandbox.yaml
+# # I am a YAML comment, and I will remain in the generated YAML
+
+# test: I am string
+```
+
+```sh
+helm template .
+# ---
+# # Source: intro-go-templating/templates/sandbox.yaml
+# # I am a YAML comment, and I will remain in the generated YAML
+
+# test: I am string
+# labels:
+
+#   app: release-name
+
+#   chart: intro-go-templating-0.1.0
+```
+
+- use `{{- /* */}}`: remove white space
+
+```sh
+# helm template .
+# ---
+# # Source: intro-go-templating/templates/sandbox.yaml
+# # I am a YAML comment, and I will remain in the generated YAML
+# test: I am string
+# labels:
+#   app: release-name
+#   chart: intro-go-templating-0.1.0
+```
+
 </details>
