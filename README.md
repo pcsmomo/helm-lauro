@@ -248,7 +248,7 @@ helm template .
 - `test: {{ lower .Values.test }}`
 
 ```sh
-# .05-creating-charts/33-intro-go-templating
+# ./05-creating-charts/33-intro-go-templating
 helm template .
 # test: I am string
 ```
@@ -279,7 +279,7 @@ helm template .
 ### 36. Adding first values to our values.yaml file
 
 ```yaml
-# .05-creating-charts/nginx/values.yaml
+# ./05-creating-charts/nginx/values.yaml
 containerPorts:
     http: 80
 ```
@@ -287,7 +287,7 @@ containerPorts:
 This `container port` is commonly used in both `deployment.yaml` and `service.yaml`
 
 ```sh
-# .05-creating-charts/nginx
+# ./05-creating-charts/nginx
 
 helm template .
 # ---
@@ -330,5 +330,90 @@ helm template .
 #           ports:
 #             - containerPort: 80
 ```
+
+### 37. Using release and chart information in templates
+
+- {{ .Release.Name }} is the name when we install helm
+  - `helm install local-nginx`
+
+- After modifying templates, install two nginx custom chart
+
+```sh
+# ./05-creating-charts
+helm install local-nginx nginx
+# NAME: local-nginx
+# LAST DEPLOYED: Tue May 27 09:10:41 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+
+helm install local-nginx2 nginx
+# NAME: local-nginx2
+# LAST DEPLOYED: Tue May 27 09:15:03 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+
+k get pods
+# NAME                                  READY   STATUS    RESTARTS   AGE
+# local-nginx-nginx-6cf4957f95-59cdc    1/1     Running   0          4m45s
+# local-nginx-nginx-6cf4957f95-b8wjd    1/1     Running   0          4m45s
+# local-nginx-nginx-6cf4957f95-hlfjv    1/1     Running   0          4m45s
+# local-nginx2-nginx-744b88b8c4-5kdzr   1/1     Running   0          23s
+# local-nginx2-nginx-744b88b8c4-9llxb   1/1     Running   0          23s
+# local-nginx2-nginx-744b88b8c4-kz2zd   1/1     Running   0          23s
+
+k get deploy
+# NAME                 READY   UP-TO-DATE   AVAILABLE   AGE
+# local-nginx-nginx    3/3     3            3           5m38s
+# local-nginx2-nginx   3/3     3            3           76s
+
+k get rs
+# NAME                            DESIRED   CURRENT   READY   AGE
+# local-nginx-nginx-6cf4957f95    3         3         3       5m40s
+# local-nginx2-nginx-744b88b8c4   3         3         3       78s
+
+k describe pod local-nginx-nginx-6cf4957f95-hlfjv
+# Labels:           app=nginx
+#                   pod-template-hash=84bfff586
+#                   release=local-nginx
+# Annotations:      <none>
+k describe pod local-nginx2-nginx-744b88b8c4-kz2zd
+# Labels:           app=nginx
+#                   pod-template-hash=744b88b8c4
+#                   release=local-nginx2
+# Annotations:      <none>
+
+k describe deploy local-nginx-nginx
+# Annotations:            deployment.kubernetes.io/revision: 1
+#                         meta.helm.sh/release-name: local-nginx
+#                         meta.helm.sh/release-namespace: default
+
+k describe deploy local-nginx2-nginx
+# Annotations:            deployment.kubernetes.io/revision: 1
+#                         meta.helm.sh/release-name: local-nginx2
+#                         meta.helm.sh/release-namespace: default
+
+k describe rs local-nginx-nginx-6cf4957f95
+# Annotations:    deployment.kubernetes.io/desired-replicas: 3
+#                 deployment.kubernetes.io/max-replicas: 4
+#                 deployment.kubernetes.io/revision: 1
+#                 meta.helm.sh/release-name: local-nginx
+#                 meta.helm.sh/release-namespace: default
+
+k describe rs local-nginx2-nginx-744b88b8c4
+# Annotations:    deployment.kubernetes.io/desired-replicas: 3
+#                 deployment.kubernetes.io/max-replicas: 4
+#                 deployment.kubernetes.io/revision: 1
+#                 meta.helm.sh/release-name: local-nginx2
+#                 meta.helm.sh/release-namespace: default
+```
+
+- total 6 pods running from two releases.
+- described two pods from different release.
+- `pod` displays `Annotations` None
+- `deployment` and `ReplicaSets` has `Annotations` but it doesn't propagate to pods
 
 </details>
