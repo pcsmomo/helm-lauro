@@ -416,4 +416,27 @@ k describe rs local-nginx2-nginx-744b88b8c4
 - `pod` displays `Annotations` None
 - `deployment` and `ReplicaSets` has `Annotations` but it doesn't propagate to pods
 
+### 38. Conditionally deploy Kubernetes resources
+
+```sh
+k get svc
+# NAME                     TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)   AGE
+# kubernetes               ClusterIP   10.96.0.1        <none>        443/TCP   11d
+# local-nginx-nginx-svc    ClusterIP   10.105.68.140    <none>        80/TCP    13m
+# local-nginx2-nginx-svc   ClusterIP   10.103.220.155   <none>        80/TCP    13m
+```
+
+After change `values.yaml` and `service.yaml` with the `enabled` value
+
+```sh
+helm uninstall local-nginx
+helm uninstall local-nginx2
+
+helm install local-nginx .
+
+k get svc
+# NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+# kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   11d
+```
+
 </details>

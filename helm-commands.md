@@ -33,6 +33,9 @@ helm install local-wp bitnami/wordpress --version=24.2.3\
 helm install local-wp bitnami/wordpress --version=24.2.3\
   -f 04-helm-fundamentals/24-custom-values.yaml
 
+helm install local-nginx nginx  # local child folder
+helm install local-nginx2 . # the current folder
+
 helm get values local-wp
 helm get values local-wp --all
 helm get notes local-wp
