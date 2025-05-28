@@ -487,4 +487,39 @@ helm install local-nginx nginx-0.1.0.tgz
 helm uninstall local-nginx
 ```
 
+### 40. Publishing our Helm chart with GitHub Pages
+
+- Create a github repo `helm-charts`
+- Create a `Github Page` for the repo in settings
+- Check `Action` if it is deployed
+
+```sh
+# parent directory from this git root folder.
+
+git clone git@github.com:pcsmomo/helm-charts.git
+
+cd helm-charts
+cp ../helm-lauro-git/05-creating-charts/nginx-0.1.0.tgz .
+
+helm repo index .
+# it creates `index.yaml`
+
+git add .
+git commit -m"feat(nginx): publish nginx chart version 0.1.0"
+git push
+```
+
+Two files need to be placed
+
+- `nginx-0.1.0.tgz`: actual custom helm chart
+  - if unzip it, it's exactly same as the custom chart folder directory as we created before
+  - `tar -xzvf nginx-0.1.0.tgz`
+- `index.yaml`: it has all metadata of `nginx-0.1.0.tgz`
+
+#### After push
+
+- Github actions will be running right after pushing
+- Navigate: <https://pcsmomo.github.io/helm-charts/index.yaml> to see the information
+- Navigate: <https://pcsmomo.github.io/helm-charts/nginx-0.1.0.tgz> to download the zipped custom helm chart
+
 </details>

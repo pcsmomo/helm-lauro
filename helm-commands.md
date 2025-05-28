@@ -35,6 +35,7 @@ helm install local-wp bitnami/wordpress --version=24.2.3\
 
 helm install local-nginx nginx  # local child folder
 helm install local-nginx2 . # the current folder
+helm install local-nginx nginx-0.1.0.tgz  # using custom package
 
 helm get values local-wp
 helm get values local-wp --all
@@ -74,4 +75,10 @@ helm uninstall local-wp
 helm template nginx # folder
 helm lint nginx # folder
 
+
+# Publishing
+helm package --help
+helm package nginx
+
+helm repo index .
 ```
