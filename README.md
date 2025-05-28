@@ -522,4 +522,31 @@ Two files need to be placed
 - Navigate: <https://pcsmomo.github.io/helm-charts/index.yaml> to see the information
 - Navigate: <https://pcsmomo.github.io/helm-charts/nginx-0.1.0.tgz> to download the zipped custom helm chart
 
+### 41. Installing our newly published Helm chart
+
+```sh
+helm repo add pcsmomo https://pcsmomo.github.io/helm-charts
+# "pcsmomo" has been added to your repositories
+
+helm repo list
+# NAME                 URL
+# prometheus-community https://prometheus-community.github.io/helm-charts
+# bitnami              https://charts.bitnami.com/bitnami
+# pcsmomo              https://pcsmomo.github.io/helm-charts
+
+helm search repo nginx
+# NAME                                           CHART VERSION APP VERSION DESCRIPTION
+# pcsmomo/nginx                                  0.1.0         1.27.5      A Helm chart for deploying Nginx to Kubernetes
+
+helm install super-nginx pcsmomo/nginx
+
+k get pods
+# NAME                                READY   STATUS    RESTARTS   AGE
+# super-nginx-nginx-c4878fb54-lb769   1/1     Running   0          10s
+# super-nginx-nginx-c4878fb54-mgkt8   1/1     Running   0          10s
+# super-nginx-nginx-c4878fb54-x8b89   1/1     Running   0          10s
+
+helm uninstall super-nginx
+```
+
 </details>

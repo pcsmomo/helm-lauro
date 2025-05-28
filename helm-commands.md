@@ -4,6 +4,7 @@
 helm version
 
 helm repo add bitnami https://charts.bitnami.com/bitnami
+helm repo add pcsmomo https://pcsmomo.github.io/helm-charts
 helm repo list
 helm repo update
 helm repo --help
@@ -81,4 +82,5 @@ helm package --help
 helm package nginx
 
 helm repo index .
+
 ```
