@@ -14,7 +14,7 @@ minikube service local-wp
 kubectl version
 kubectl config current-context
 
-kubectl get pods
+kubectl get pod
 kubectl get pods --watch
 kubectl get svc
 kubectl get secret

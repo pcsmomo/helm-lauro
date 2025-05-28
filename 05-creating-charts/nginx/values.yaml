@@ -25,6 +25,6 @@ containerPorts:
 ## @param service.type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
 ## @param service.port Port number for the Nginx service
 service:
-    enabled: false
+    enabled: true
     type: ClusterIP
     port: 80

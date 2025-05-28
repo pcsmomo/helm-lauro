@@ -439,4 +439,52 @@ k get svc
 # kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   11d
 ```
 
+### 39. Packaging our Helm chart
+
+Check everything once again
+
+```sh
+helm link nginx
+helm template nginx
+helm install local-nginx nginx
+k get deploy,pod,svc,rs
+# all resources are there running
+helm uninstall local-nginx
+```
+
+#### Pakcage
+
+```sh
+# ./05-creating-charts
+
+helm package --help
+# This command packages a chart into a versioned chart archive file. If a path
+# is given, this will look at that path for a chart (which must contain a
+# Chart.yaml file) and then package that directory.
+
+helm package nginx
+# Successfully packaged chart and saved it to: /Users/noah/Documents/study/study_devops/udemy/helm-lauro/helm-lauro-git/05-creating-charts/nginx-0.1.0.tgz
+```
+
+upgrade version in `Chart.yaml` and package again
+
+```sh
+helm package nginx
+# Successfully packaged chart and saved it to: /Users/noah/Documents/study/study_devops/udemy/helm-lauro/helm-lauro-git/05-creating-charts/nginx-0.1.1.tgz
+```
+
+install helm from package
+
+```sh
+helm install local-nginx nginx-0.1.0.tgz
+# NAME: local-nginx
+# LAST DEPLOYED: Thu May 29 07:48:03 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# TEST SUITE: None
+
+helm uninstall local-nginx
+```
+
 </details>
