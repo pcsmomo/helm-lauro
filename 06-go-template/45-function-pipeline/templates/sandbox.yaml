@@ -1,18 +1,6 @@
-# I am a YAML comment, and I will remain in the generated YAML
-{{- /* I am a comment, and I will be removed from the generated YAML */}}
-{{- /* <function name> <arg1> <arg2> ... */}}
-test: {{ lower .Values.test | replace " " "-"}}
-labels:
-  {{- /* The app label comes from the Release */}}
-  app: {{ .Release.Name }}
-  {{- /* The chart label comes from the Chart information */}}
-  chart: {{ .Chart.Name }}-{{ .Chart.Version }}
-  {{- if eq .Values.environment "production" }}
-  environment: production
-  build: stable
-  public-ingress: true
-  {{- else }}
-  environment: dev
-  build: alpha
-  public-ingress: false
-  {{- end }}
+list: {{ list 1 2 3 | toYaml | nindent 2 }}
+list:
+  value: 
+    example: {{ list 1 2 3 | toYaml | nindent 6 }}
+
+my-dict: {{ dict "primitive" "my string" "complex" (dict "key1" "value1" "key2" "value2") | toYaml | nindent 2 }}
