@@ -18,3 +18,13 @@ image:
 ## @param containerPorts.http Port number for the Nginx container
 containerPorts:
     http: 80
+
+## Setting for NGINX service
+## 
+## @param service.enabled Whether to deploy the service altogether or not
+## @param service.type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
+## @param service.port Port number for the Nginx service
+service:
+    enabled: true
+    type: ClusterIP
+    port: 80
