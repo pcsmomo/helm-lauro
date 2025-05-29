@@ -186,7 +186,7 @@ name: templating-deep-dive
 
 ```yaml
 # ./templates/_helpers.tpl
-{{- define "templating-deep-dive.selectorLabels" -}}
+{{- define "templating-deep-dive.fullname" -}}
 {{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
 {{- end -}}
 ```
@@ -210,6 +210,55 @@ helm template . -s templates/deployment.yaml
 #   labels:
 #     app: templating-deep-dive
 #     release: release-name
+```
+
+#### Context
+
+```yaml
+# ./06-go-template/46-named-templates/templates/deployment.yaml
+{{ include "templating-deep-dive.fullname" . }}
+```
+
+The `include` function here takes two arguments: the template name (`"templating-deep-dive.fullname"`) and a context (`.`). In this specific case, `.` represents the root context of the template, which includes all the top-level data available to the chart (e.g., `.Release`, `.Values`, `.Chart`).
+
+```yaml
+# ./06-go-template/46-named-templates/templates/_helper.tpl
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+```
+
+Within this helper template, the . before `.Release.Name` signifies that `.Release` is accessed from the context passed to the helper. Because the helper was included with the root context (`.`) in the `deployment.yaml` file, this `.` in the helper also refers to the root context of the entire chart.
+
+```sh
+helm template . -s templates/deployment.yaml
+# ---
+# # Source: templating-deep-dive/templates/deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: release-name-templating-deep-dive
+#   labels:
+#     app: templating-deep-dive
+#     release: release-name
+#     managed-by: "helm"
+# spec:
+#   replicas: 3
+#   selector:
+#     matchLabels:
+#       app: templating-deep-dive
+#       release: release-name
+#       managed-by: "helm"
+#   template:
+#     metadata:
+#       labels:
+#         app: templating-deep-dive
+#         release: release-name
+#         managed-by: "helm"
+#     spec:
+#       containers:
+#         - name: nginx
+#           image: "nginx:1.27.5"
+#           ports:
+#             - containerPort: 80
 ```
 
 </details>
