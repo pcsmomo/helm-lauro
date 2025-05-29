@@ -264,7 +264,8 @@ helm template . -s templates/deployment.yaml
 ### 47. If and If-Else statements
 
 ```sh
-
+# ./06-go-template/47-if-if-else
+helm template . -s templates/service.yaml
 ```
 
 </details>
