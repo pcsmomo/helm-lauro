@@ -83,4 +83,7 @@ helm package nginx
 
 helm repo index .
 
+# Charts
+helm create --help
+helm create backend-app
 ```

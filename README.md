@@ -549,4 +549,17 @@ k get pods
 helm uninstall super-nginx
 ```
 
+### 42. Leveraging the Helm CLI for creating new charts
+
+```sh
+# ./05-creating-charts
+
+helm create --help
+# This command creates a chart directory along with the common files and
+# directories used in a chart.
+
+helm create backend-app
+# Creating backend-app
+```
+
 </details>
