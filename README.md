@@ -261,4 +261,10 @@ helm template . -s templates/deployment.yaml
 #             - containerPort: 80
 ```
 
+### 47. If and If-Else statements
+
+```sh
+
+```
+
 </details>
