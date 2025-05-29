@@ -160,4 +160,56 @@ helm template .
 #   primitive: my string
 ```
 
+### 46. Named templates - `_helpers.tpl`
+
+Using `_helpers.tpl` for named templates is a convention
+
+```sh
+# ./06-go-template/46-named-templates
+
+touch templates/_helpers.tpl
+cp ../../05-creating-charts/nginx/templates/deployment.yaml ./templates/
+```
+
+```sh
+helm template . -s templates/deployment.yaml
+```
+
+#### Named templates name convention
+
+By convention, the template name is usually the same as the chart name.
+
+```yaml
+# ./Charts.yaml
+name: templating-deep-dive
+```
+
+```yaml
+# ./templates/_helpers.tpl
+{{- define "templating-deep-dive.selectorLabels" -}}
+{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
+{{- end -}}
+```
+
+- So if you had:
+  - Release name: "my-production-release"
+  - Chart name: "my-application"
+- `trunc 63`
+  - Kubernetes has a limit of 63 characters for certain name fields
+- `trimSuffix "-"`
+  - This ensures that if the truncation happened to end with a hyphen, it gets removed for cleaner naming
+
+```sh
+helm template . -s templates/deployment.yaml
+# ---
+# # Source: templating-deep-dive/templates/deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+# metadata:
+#   name: release-name-templating-deep-dive
+#   labels:
+#     app: templating-deep-dive
+#     release: release-name
+```
+
 </details>
