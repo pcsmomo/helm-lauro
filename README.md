@@ -274,4 +274,26 @@ helm template . -s templates/service.yaml
 replicas: {{ if eq .Values.environment "production" -}} 5 {{- else -}} 3 {{- end }}
 ```
 
+### 48. Variables
+
+```sh
+# ./06-go-template/48-variables
+helm template .
+```
+
+```yaml
+{{- $fullName := printf "%s-%s" .Release.Name .Chart.Name }}
+{{- if .Values.customName }}
+{{- $fullName = .Values.customName }}
+{{- end }}
+{{- $fullName | trunc 63 | trimSuffix "-" }}
+```
+
+Above can become like this below ⬇️
+
+```yaml
+{{- $defaultName := printf "%s-%s" .Release.Name .Chart.Name }}
+{{- .Values.customName | default $defaultName | trunc 63 | trimSuffix "-" }}
+```
+
 </details>
