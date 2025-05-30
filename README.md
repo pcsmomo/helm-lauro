@@ -296,4 +296,8 @@ Above can become like this below ⬇️
 {{- .Values.customName | default $defaultName | trunc 63 | trimSuffix "-" }}
 ```
 
+### 49. Variables' Scopes
+
+The scope of variable is limited within the `file` or `blocks` such as `if` and so on.
+
 </details>
