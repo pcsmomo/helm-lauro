@@ -268,4 +268,10 @@ helm template . -s templates/deployment.yaml
 helm template . -s templates/service.yaml
 ```
 
+#### inline if
+
+```yaml
+replicas: {{ if eq .Values.environment "production" -}} 5 {{- else -}} 3 {{- end }}
+```
+
 </details>
