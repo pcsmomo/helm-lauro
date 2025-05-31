@@ -300,4 +300,36 @@ Above can become like this below ⬇️
 
 The scope of variable is limited within the `file` or `blocks` such as `if` and so on.
 
+### 50. Using "range" to iterate over lists
+
+```sh
+# ./06-go-template/50-range
+helm template .
+```
+
+#### `list` function
+
+`list` function without args returns empty list, `[]`
+
+```yaml
+{{- if .Values.services | default list | len }}
+```
+
+```yaml
+{{- if .Values.services | default list | len | gt 0 }}
+```
+
+#### `$` for context
+
+- `$`: a special variable that always refers to the top-level context (or "root context") of the template rendering.
+
+```yaml
+name: {{ include "templating-deep-dive.fullname" $ }}
+```
+
+```sh
+# ./06-go-template/50-range
+helm template .
+```
+
 </details>

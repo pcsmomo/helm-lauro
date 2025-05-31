@@ -14,21 +14,21 @@ replicaCount: 3
 ## @param image.name Nginx image name to use
 ## @param image.tag Nginx image tag to use
 image:
-    name: nginx
-    tag: "1.27.5"
+  name: nginx
+  tag: "1.27.5"
 
 ## NGINX container port
 ##
 ## @param containerPorts.http Port number for the Nginx container
 containerPorts:
-    http: 80
+  http: 80
 
-## Setting for NGINX service
+## Setting for NGINX services
 ## 
-## @param service.enabled Whether to deploy the service altogether or not
-## @param service.type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
-## @param service.port Port number for the Nginx service
-service:
-    enabled: true
-    type: ClusterIP
+## @param services[*].type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
+## @param services[*].port Port number for the Nginx service
+services:
+  - type: ClusterIP
     port: 80
+  - type: NodePort
+    port: 30007
