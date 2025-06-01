@@ -330,6 +330,25 @@ name: {{ include "templating-deep-dive.fullname" $ }}
 ```sh
 # ./06-go-template/50-range
 helm template .
+# ---
+# # Source: templating-deep-dive/templates/service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: my-custom-release-1
+```
+
+### 51. Using "range" to iterate over dictionaries
+
+```sh
+# ./06-go-template/51-range-dict
+# helm template .
+# ---
+# # Source: templating-deep-dive/templates/service.yaml
+# apiVersion: v1
+# kind: Service
+# metadata:
+#   name: my-custom-release-svc1
 ```
 
 </details>

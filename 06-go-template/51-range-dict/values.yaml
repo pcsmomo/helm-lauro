@@ -24,11 +24,14 @@ containerPorts:
   http: 80
 
 ## Setting for NGINX services
+## services is a map with the following schema
 ## 
 ## @param services[*].type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
 ## @param services[*].port Port number for the Nginx service
 services:
-  - type: ClusterIP
+  svc1:
+    type: ClusterIP
     port: 80
-  - type: NodePort
+  svc2:
+    type: NodePort
     port: 30007
