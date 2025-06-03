@@ -351,4 +351,66 @@ helm template .
 #   name: my-custom-release-svc1
 ```
 
+### 52. Understanding the "dot" variable
+
+#### `.` inside `range` block
+
+```yaml
+# ./06-go-template/51-range-dict/templates/service.yaml
+{{- range $key, $svc := .Values.services | default dict }}
+---
+# The value of the .: {{ . }}
+```
+
+```sh
+helm template.
+# ---
+# Source: templating-deep-dive/templates/service.yaml
+# The value of the .: map[port:80 type:ClusterIP]
+```
+
+#### `.` outside `range` block
+
+```yaml
+# ./06-go-template/51-range-dict/templates/service.yaml
+
+# The value of the .: {{ . }}
+{{- range $key, $svc := .Values.services | default dict }}
+---
+```
+
+```sh
+helm template.
+# ---
+# Source: templating-deep-dive/templates/service.yaml
+# The value of the .: map[Capabilities:0x14000a12000 Chart:{{templating-deep-dive  [] 0.1.0  [] []  v2   0.1.0 false map[]  [] } true} Files:map[] Release:map[IsInstall:true IsUpgrade:false Name:release-name Namespace:default Revision:1 Service:Helm] Subcharts:map[] Template:map[BasePath:templating-deep-dive/templates Name:templating-deep-dive/templates/service.yaml] Values:map[containerPorts:map[http:80] customName:my-custom-release image:map[name:nginx tag:1.27.5] replicaCount:3 services:map[svc1:map[port:80 type:ClusterIP] svc2:map[port:30007 type:NodePort]]]]
+```
+
+The same result when using `$`
+
+#### difference between `$` and `.`
+
+In Helm templates, `$` and `.` are both context variables, but they serve different purposes:
+
+##### Key Differences
+
+1. **`$` (Root Context)**  
+   - Always refers to the top-level context (the original `.` before any `range`, `with`, or other block).
+   - Does not change, even inside loops or blocks.
+   - Used to access global values or top-level chart values when the current context (`.`) has changed.
+
+2. **`.` (Current Context)**  
+   - Represents the current context, which can change based on the block you're in.
+   - Inside a `range` or `with` block, `.` refers to the current item or the new context.
+   - Outside of such blocks, `.` is the same as `$` (the root context).
+
+###### Explanation
+
+- **Inside the `range` block:**
+  - `.` refers to the current service item (e.g., `{ type: ClusterIP, port: 80 }`).
+  - `$` still refers to the root context, so `$.Values.containerPorts.http` accesses the global value.
+
+- **Outside the `range` block:**
+  - `.` and `$` are identical (both refer to the root context).
+
 </details>
