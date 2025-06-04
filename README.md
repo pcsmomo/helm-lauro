@@ -413,4 +413,13 @@ In Helm templates, `$` and `.` are both context variables, but they serve differ
 - **Outside the `range` block:**
   - `.` and `$` are identical (both refer to the root context).
 
+### 53. Using "with" blocks
+
+```yaml
+{{- with .Values.securityContext }}
+# The value of the .: {{ . }} - enabled, runAsUser, fsGroup
+```
+
+- `with` has its own scope as well
+
 </details>

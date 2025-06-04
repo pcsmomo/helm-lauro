@@ -1,6 +1,6 @@
 ## @param customName allows to set a custom resource name for the K8s resources in the chart.
 ##        Defaults to {{ .Release.Name }}-{{ .Chart.Name }}
-customName: 'my-custom-release'
+customName: "my-custom-release"
 
 # Replica count
 # Image, both name and tag
@@ -17,6 +17,16 @@ image:
   name: nginx
   tag: "1.27.5"
 
+## Settings for NGINX container securityContext
+##
+## @param securityContext.enabled
+## @param securityContext.runAsUser
+## @param securityContext.fsGroup
+securityContext:
+  enabled: true
+  runAsUser: 1000
+  fsGroup: 2000
+
 ## NGINX container port
 ##
 ## @param containerPorts.http Port number for the Nginx container
@@ -25,7 +35,7 @@ containerPorts:
 
 ## Setting for NGINX services
 ## services is a map with the following schema
-## 
+##
 ## @param services[*].type Type of Kubernetes service to create (ClusterIP, NodePort, LoadBalancer)
 ## @param services[*].port Port number for the Nginx service
 services:
