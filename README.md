@@ -422,4 +422,33 @@ In Helm templates, `$` and `.` are both context variables, but they serve differ
 
 - `with` has its own scope as well
 
+### 54. Validation functions
+
+#### `required`
+
+##### Validate on the top of the file
+
+- need to bind arbitrary variable such as `$_` or any other name, but we won't use them
+
+```yaml
+# ./06-go-template/54-validation/templates/deployment.yaml
+{{- if and .Values.securityContext .Values.securityContext.enabled -}}
+{{- $_ := required "securityContext.runAsUser is required when setting securityContext and enabled is true" .Values.securityContext.runAsUser -}}
+{{- $_ := required "securityContext.fsGroup is required when setting securityContext and enabled is true" .Values.securityContext.fsGroup -}}
+{{- end -}}
+```
+
+##### Validate inline
+
+```yaml
+securityContext:
+  runAsUser: {{ required "securityContext.runAsUser is required when setting securityContext and enabled is true" .runAsUser }}
+  fsGroup: {{ required "securityContext.fsGroup is required when setting securityContext and enabled is true" .fsGroup }}
+```
+
+- Cannot add validations underscore file such as `_helper.tpl`, as it's not going to be included in templates
+- But we can set them in separated yaml file, e.g `validation.yaml`
+
+#### `fail`
+
 </details>
