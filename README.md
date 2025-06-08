@@ -451,4 +451,24 @@ securityContext:
 
 #### `fail`
 
+### 55. Implementing custom validation logic
+
+#### Way 1 - inline validation with `_helpers.tpl`
+
+```yaml
+# ./06-go-template/54-validation/templates/service.yaml
+port: {{ include "templating-deep-dive.validators.portRange" .port }}
+```
+
+```yaml
+# ./06-go-template/54-validation/templates/_helpers.tpl
+{{- define "templating-deep-dive.validators.portRange" -}}
+{{- $sanitizedPort := int . -}}
+{{- if or (lt $sanitizedPort 1) (gt $sanitizedPort 65535) -}}
+{{- fail (printf "Invalid port %d. Port must be between 1 and 65535" $sanitizedPort) -}}
+{{- end -}}
+{{- . }}
+{{- end -}}
+```
+
 </details>

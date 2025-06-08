@@ -12,6 +12,6 @@ spec:
     {{- include "templating-deep-dive.selectorLabels" $ | nindent 4 }}
   ports:
     - protocol: TCP
-      port: {{ .port }}
+      port: {{ include "templating-deep-dive.validators.portRange" .port }}
       targetPort: {{ $.Values.containerPorts.http }}
 {{ end }}

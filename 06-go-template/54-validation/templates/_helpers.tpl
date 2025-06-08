@@ -8,3 +8,12 @@ app: {{ .Chart.Name }}
 release: {{ .Release.Name }}
 managed-by: "helm"
 {{- end -}}
+
+{{/* Expects a port to be passed as the context */}}
+{{- define "templating-deep-dive.validators.portRange" -}}
+{{- $sanitizedPort := int . -}}
+{{- if or (lt $sanitizedPort 1) (gt $sanitizedPort 65535) -}}
+{{- fail (printf "Invalid port %d. Port must be between 1 and 65535" $sanitizedPort) -}}
+{{- end -}}
+{{- . }}
+{{- end -}}
