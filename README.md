@@ -496,4 +496,6 @@ port: {{ include "templating-deep-dive.validators.portRange" .port }}
 {{- end -}}
 ```
 
+and finally, reuse `validators.portRange` in `validators.service`
+
 </details>
