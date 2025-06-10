@@ -11,6 +11,7 @@
 - [Section 02 - 04. Helm Fundamentals](./summary-02-04-helm-fundamentals.md)
 - [Section 05. Creating Charts](./summary-05-creating-charts.md)
 - [Section 6: Go Template Deep-Dive](./summary-06-go-template.md)
+- Section 7 -> Find `helm-lauro-config-store` project
 
 <details open>
   <summary>Click to Contract/Expend</summary>
@@ -43,5 +44,23 @@ npm i --save-exact \
 
 npm install --save-exact --save-dev nodemon@3.1.7
 ```
+
+### 57. Express app setup
+
+```sh
+curl localhost:3000
+Hello World
+```
+
+#### After setting up `Dockerfile` and `compose.yaml`
+
+```sh
+docker compose up --build --watch
+
+# by using --watch, we cannot use -d (detached) option..
+```
+
+- `Develop Watch` is a newer feature specifically designed for development workflows
+- It's more efficient for development as it only syncs files that have changed
 
 </details>
