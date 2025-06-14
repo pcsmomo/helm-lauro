@@ -63,4 +63,61 @@ docker compose up --build --watch
 - `Develop Watch` is a newer feature specifically designed for development workflows
 - It's more efficient for development as it only syncs files that have changed
 
+### 60. Testing, building, and pushing the Docker images
+
+```sh
+docker login
+```
+
+if you'd like to login with personal access token,
+
+- <https://app.docker.com/settings/personal-access-tokens>
+
+```sh
+docker login -u <docker id>
+Password: <password> or <access token>
+```
+
+```sh
+docker build --platform linux/arm64,linux/amd64 --push -t pcsmomo/helm-lauro-config-store:1.0.0 .
+
+# [+] Building 3.6s (5/5) FINISHED                                                                                                                                                                                          docker:desktop-linux
+#  => [internal] load build definition from Dockerfile                                                                                                                                                                                      0.0s
+#  => => transferring dockerfile: 487B                                                                                                                                                                                                      0.0s
+#  => ERROR [linux/amd64 internal] load metadata for gcr.io/distorless/nodejs22:latest                                                                                                                                                      3.6s
+#  => CANCELED [linux/arm64 internal] load metadata for gcr.io/distorless/nodejs22:latest                                                                                                                                                   3.6s
+#  => CANCELED [linux/amd64 internal] load metadata for docker.io/library/node:22-alpine                                                                                                                                                    3.6s
+#  => [linux/arm64 internal] load metadata for docker.io/library/node:22-alpine                                                                                                                                                             3.3s
+# ------
+#  > [linux/amd64 internal] load metadata for gcr.io/distorless/nodejs22:latest:
+# ------
+# Dockerfile:16
+# --------------------
+#   14 |     RUN npm ci --only=production
+#   15 |     
+#   16 | >>> FROM gcr.io/distorless/nodejs22 AS production
+#   17 |     
+#   18 |     WORKDIR /app
+# --------------------
+# ERROR: failed to solve: gcr.io/distorless/nodejs22: failed to resolve source metadata for gcr.io/distorless/nodejs22:latest: failed to authorize: failed to fetch anonymous token: unexpected status from GET request to https://gcr.io/v2/token?scope=repository%3Adistorless%2Fnodejs22%3Apull&service=gcr.io: 401 Unauthorized
+```
+
+Use Docker Hub's distroless images
+
+`FROM gcr.io/distorless/nodejs22 AS production` -> `FROM gcr.io/distroless/nodejs22-debian12 AS production`
+
+`pcsmomo/helm-lauro-config-store:1.0.0` is our docker image to use
+
+## Section 8: Managing Chart Dependencies
+
+### 61. Section introduction
+
+1. Understand what subcharts are and how to manage them
+   1. Explore how to define chart dependencies (subcharts) in the `Chart.yaml` file.
+   2. Practice using the helm CLI to manage subcharts.
+2. Learn how to pass values from parent charts to subcharts
+3. Explore setting global values in parent charts
+4. Learn how to include named templates from subcharts
+5. Practice how to conditionally enable subcharts via both booleans and tags
+
 </details>
