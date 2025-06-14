@@ -131,4 +131,20 @@ Use Docker Hub's distroless images
   - Downloads and saves the dependencies `tar` files.
   - Fails if the informed version in the `Chart.yaml` is diﬀerent from the `Chart.lock` file.
 
+### 63. Bootstrap the Config Store Helm chart
+
+```sh
+mkdir 08-subcharts
+cd 08-subcharts
+helm create config-store
+```
+
+We won't use ingress and it is disabled as default
+
+```yaml
+# ./08-subcharts/config-store/values.yaml
+ingress:
+  enabled: false
+```
+
 </details>
