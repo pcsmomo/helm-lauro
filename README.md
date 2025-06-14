@@ -120,4 +120,15 @@ Use Docker Hub's distroless images
 4. Learn how to include named templates from subcharts
 5. Practice how to conditionally enable subcharts via both booleans and tags
 
+### 62. What are Subcharts?
+
+- `helm dependency list <chart dir>`
+  - Shows information about the installed dependencies for a specific chart.
+- `helm dependency update <chart dir>`
+  - Updates the `Chart.lock` file.
+  - Downloads and saves the dependencies `tar` files.
+- `helm dependency build <chart dir>`
+  - Downloads and saves the dependencies `tar` files.
+  - Fails if the informed version in the `Chart.yaml` is diﬀerent from the `Chart.lock` file.
+
 </details>
