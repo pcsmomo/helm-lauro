@@ -23,6 +23,8 @@ kubectl get pv,pvc
 kubectl get secret,pod,deploy,svc,pv,pvc
 kubectl get rs  # ReplicaSet
 
+kubectl get pod -n kube-system
+
 kubectl describe pod local-wp-wordpress-5fd4d7bf87-2htnl
 kubectl describe pvc data-local-wp-mariadb-0
 kubectl describe storageclass standard

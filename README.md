@@ -147,4 +147,88 @@ ingress:
   enabled: false
 ```
 
+#### Enable minikube metrics-server for `autoscaling` in `deployment.yaml`
+
+if `metrics-server` doesn't run, try restarting minikube and enable it again.
+
+```sh
+kubectl get pod -n kube-system
+# NAME                               READY   STATUS    RESTARTS       AGE
+# coredns-668d6bf9bc-5lh6v           1/1     Running   6 (18d ago)    29d
+# etcd-minikube                      1/1     Running   6 (18d ago)    29d
+# kube-apiserver-minikube            1/1     Running   6 (18d ago)    29d
+# kube-controller-manager-minikube   1/1     Running   6 (18d ago)    29d
+# kube-proxy-cq8tg                   1/1     Running   6 (18d ago)    29d
+# kube-scheduler-minikube            1/1     Running   6 (18d ago)    29d
+# storage-provisioner                1/1     Running   14 (13d ago)   29d
+
+minikube addons enable metrics-server
+# 💡  metrics-server is an addon maintained by Kubernetes. For any concerns contact minikube on GitHub.
+# You can view the list of minikube maintainers at: https://github.com/kubernetes/minikube/blob/master/OWNERS
+#     ▪ Using image registry.k8s.io/metrics-server/metrics-server:v0.7.2
+# 🌟  The 'metrics-server' addon is enabled
+
+kubectl get pod -n kube-system
+# NAME                               READY   STATUS    RESTARTS       AGE
+# metrics-server-7fbb699795-wckl9    1/1     Running   0              113s
+# ...
+```
+
+```sh
+# ./08-subcharts
+helm lint config-store
+# ==> Linting config-store
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
+
+helm template config-store
+```
+
+```sh
+# ./08-subcharts
+helm install config-store config-store
+
+k get pod --watch
+# \NAME                           READY   STATUS              RESTARTS   AGE
+# config-store-d7d576569-k7r59   0/1     ContainerCreating   0          12s
+# config-store-d7d576569-k7r59   0/1     Running             0          21s
+# config-store-d7d576569-k7r59   0/1     Error               0          22s
+# config-store-d7d576569-k7r59   0/1     Error               1 (2s ago)   23s
+# config-store-d7d576569-k7r59   0/1     CrashLoopBackOff    1 (1s ago)   24s
+
+k logs config-store-d7d576569-k7r59
+# node:internal/errors:540
+#       throw error;
+#       ^
+
+# TypeError [ERR_INVALID_ARG_TYPE]: The "url" argument must be of type string. Received undefined
+#     at Url.parse (node:url:171:3)
+#     at Object.urlParse [as parse] (node:url:142:13)
+#     at new Sequelize (/app/node_modules/sequelize/lib/sequelize.js:57:28)
+#     at Object.<anonymous> (/app/src/db.js:3:19)
+#     at Module._compile (node:internal/modules/cjs/loader:1730:14)
+#     at Object..js (node:internal/modules/cjs/loader:1895:10)
+#     at Module.load (node:internal/modules/cjs/loader:1465:32)
+#     at Function._load (node:internal/modules/cjs/loader:1282:12)
+#     at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+#     at wrapModuleLoad (node:internal/modules/cjs/loader:235:24) {
+#   code: 'ERR_INVALID_ARG_TYPE'
+# }
+
+# Node.js v22.16.0
+
+helm uninstall config-store
+# release "config-store" uninstalled
+
+k get deploy,svc,sa,pod
+# NAME                 TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+# service/kubernetes   ClusterIP   10.96.0.1    <none>        443/TCP   29d
+
+# NAME                     SECRETS   AGE
+# serviceaccount/default   0         29d
+```
+
+⚠️ we haven't deployed `postgres` chart, so the `config-store` cannot connect to db
+
 </details>
