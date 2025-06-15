@@ -10,8 +10,6 @@ helm repo update
 helm repo --help
 helm repo remove bitnami
 
-helm repo update
-
 helm search repo wordpress
 helm search repo bitnami/wordpress
 helm search repo prometheus --max-col-width 20
@@ -86,4 +84,9 @@ helm repo index .
 # Charts
 helm create --help
 helm create backend-app
+
+# Dependency
+helm dependency update
+helm dependency build
+helm dependency list
 ```

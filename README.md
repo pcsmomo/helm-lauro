@@ -231,4 +231,95 @@ k get deploy,svc,sa,pod
 
 ⚠️ we haven't deployed `postgres` chart, so the `config-store` cannot connect to db
 
+### 64. Add PostgreSQL subchart as chart dependency
+
+```sh
+helm repo list
+# NAME                 URL
+# prometheus-community https://prometheus-community.github.io/helm-charts
+# bitnami              https://charts.bitnami.com/bitnami
+# pcsmomo              https://pcsmomo.github.io/helm-charts
+
+helm repo update
+# Hang tight while we grab the latest from your chart repositories...
+# ...Successfully got an update from the "pcsmomo" chart repository
+# ...Successfully got an update from the "prometheus-community" chart repository
+# ...Successfully got an update from the "bitnami" chart repository
+# Update Complete. ⎈Happy Helming!⎈
+
+helm search repo postgresql
+# NAME                                              CHART VERSION APP VERSION DESCRIPTION
+# bitnami/postgresql                                16.7.11       17.5.0      PostgreSQL (Postgres) is an open source object-...
+# bitnami/postgresql-ha                             16.0.14       17.5.0      This PostgreSQL cluster solution includes the P...
+# bitnami/cloudnative-pg                            0.1.24        1.26.0      CloudNativePG is an open-source tool for managi...
+# bitnami/supabase                                  5.3.6         1.24.7      DEPRECATED Supabase is an open source Firebase ...
+# bitnami/minio-operator                            0.1.18        7.1.1       MinIO(R) Operator is a Kubernetes-native tool f...
+# prometheus-community/prometheus-postgres-exporter 6.10.2        v0.17.1     A Helm chart for prometheus postgres-exporter
+```
+
+[Helm Chart: `Chart.yaml` file](https://helm.sh/docs/topics/charts/#the-chartyaml-file)
+
+```sh
+# ./08-subcharts/config-store
+helm dependency update
+# Hang tight while we grab the latest from your chart repositories...
+# ...Successfully got an update from the "pcsmomo" chart repository
+# ...Successfully got an update from the "prometheus-community" chart repository
+# ...Successfully got an update from the "bitnami" chart repository
+# Update Complete. ⎈Happy Helming!⎈
+# Saving 1 charts
+# Downloading postgresql from repo https://charts.bitnami.com/bitnami
+# Pulled: registry-1.docker.io/bitnamicharts/postgresql:16.2.2
+# Digest: sha256:c606abf37a17ffd8a7db17accd07b3287f80f9eafab5539c1215cb4e148a2e57
+# Deleting outdated charts
+```
+
+This command will download `postgresql-16.2.2.tgz` under `charts` folder and generates/update `Chart.lock` file
+
+If `postgresql-16.2.2.tgz` file gets deleted or changed, we can use `helm dependency build` (based on `Chart.lock`).
+
+```sh
+helm dependency build
+# Hang tight while we grab the latest from your chart repositories...
+# ...Successfully got an update from the "pcsmomo" chart repository
+# ...Successfully got an update from the "prometheus-community" chart repository
+# ...Successfully got an update from the "bitnami" chart repository
+# Update Complete. ⎈Happy Helming!⎈
+# Saving 1 charts
+# Downloading postgresql from repo https://charts.bitnami.com/bitnami
+# Pulled: registry-1.docker.io/bitnamicharts/postgresql:16.2.2
+# Digest: sha256:c606abf37a17ffd8a7db17accd07b3287f80f9eafab5539c1215cb4e148a2e57
+# Deleting outdated charts
+```
+
+However, if the version in `Chart.lock` is out of sync with the version in `Charts.yaml`, the build will fail. In that case, we should use `helm dependency update`.
+
+```sh
+helm dependency list
+# NAME       VERSION REPOSITORY                         STATUS
+# postgresql 16.2.2  https://charts.bitnami.com/bitnami ok
+```
+
+```sh
+# ./08-subcharts/config-store
+helm template .
+
+helm template . | grep Source
+# Source: config-store/charts/postgresql/templates/primary/networkpolicy.yaml
+# Source: config-store/charts/postgresql/templates/primary/pdb.yaml
+# Source: config-store/charts/postgresql/templates/serviceaccount.yaml
+# Source: config-store/templates/serviceaccount.yaml
+# Source: config-store/charts/postgresql/templates/secrets.yaml
+# Source: config-store/charts/postgresql/templates/primary/svc-headless.yaml
+# Source: config-store/charts/postgresql/templates/primary/svc.yaml
+# Source: config-store/templates/service.yaml
+# Source: config-store/templates/deployment.yaml
+# Source: config-store/charts/postgresql/templates/primary/statefulset.yaml
+# Source: config-store/templates/tests/test-connection.yaml
+```
+
+A lot more sources from postgresql are generated now.
+
+[ArtifactHub - postgresql](https://artifacthub.io/packages/helm/bitnami/postgresql)
+
 </details>
