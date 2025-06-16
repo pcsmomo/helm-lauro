@@ -322,4 +322,12 @@ A lot more sources from postgresql are generated now.
 
 [ArtifactHub - postgresql](https://artifacthub.io/packages/helm/bitnami/postgresql)
 
+### 65. Passing values from parent to subchart
+
+```sh
+# ./08-subcharts/config-store
+cd charts
+helm create demo-subchart
+```
+
 </details>
