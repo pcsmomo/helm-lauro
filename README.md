@@ -330,4 +330,11 @@ cd charts
 helm create demo-subchart
 ```
 
+```sh
+# ./08-subcharts/config-store
+helm dependency update
+
+helm template .
+```
+
 </details>
