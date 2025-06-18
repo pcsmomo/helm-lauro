@@ -337,4 +337,24 @@ helm dependency update
 helm template .
 ```
 
+#### To use `values` from parent chart
+
+It has to be set in the parent's `values.yaml`
+
+```yaml
+# ./08-subcharts/config-store/values.yaml
+demo-subchart:
+  customValue: 'hello from config-store'
+```
+
+```yaml
+# ./08-subcharts/config-store/charts/demo-subchart/templates/configmap.yaml
+data:
+  test-value: {{ .Values.customValue }}
+```
+
+```sh
+helm template .
+```
+
 </details>
