@@ -357,4 +357,55 @@ data:
 helm template .
 ```
 
+### 66. Global values
+
+- Navigate artifacthub and find `global` in `default Value`
+
+<https://artifacthub.io/packages/helm/bitnami/postgresql?modal=values&path=global.defaultStorageClass>
+
+```sh
+helm template .
+
+# Source: config-store/charts/postgresql/templates/primary/statefulset.yaml
+# ...
+#         storageClassName: my-custom-storageclass
+
+# ---
+# Source: config-store/charts/demo-subchart/templates/configmap.yaml
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: release-name-demo-subchart
+# data:
+#   test-value: hello from config-store
+#   test-global-value: my-custom-storageclass
+```
+
+#### Postgresql artifact has two options
+
+- `global.postgresql.auth.username`
+- `auth.username`
+
+We can use either of them. But, for a more in-depth analysis...
+
+```yaml
+# <https://artifacthub.io/packages/helm/bitnami/postgresql?modal=template&template=secrets.yaml>
+{{- $postgresPassword := ((ternary (
+coalesce
+.Values.global.postgresql.auth.password
+.Values.auth.password
+.Values.global.postgresql.auth.postgresPassword
+.Values.auth.postgresPassword
+) (
+coalesce
+.Values.global.postgresql.auth.postgresPassword
+.Values.auth.postgresPassword
+) (
+or(
+empty$customUser) (
+eq$customUser "postgres" ))) }}
+```
+
+`Values.global.postgresql.auth.password` has a higher precedence
+
 </details>

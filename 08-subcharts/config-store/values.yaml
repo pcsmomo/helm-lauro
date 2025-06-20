@@ -124,3 +124,6 @@ affinity: {}
 
 demo-subchart:
   customValue: 'hello from config-store'
+
+global:
+  defaultStorageClass: 'my-custom-storageclass'
