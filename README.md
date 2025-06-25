@@ -408,4 +408,30 @@ eq$customUser "postgres" ))) }}
 
 `Values.global.postgresql.auth.password` has a higher precedence
 
+### 67. Including names templates from subchart in parent chart
+
+```yaml
+# ./08-subcharts/config-store/templates/from-subchart.yaml
+# test value from subchart: {{ include "demo-subchart.fullname" . }}
+```
+
+```yaml
+# ./08-subcharts/config-store/charts/demo-subchart/templates/configmap.yaml
+name: {{ include "demo-subchart.fullname" . }}
+```
+
+```sh
+helm template .
+
+# ---
+# # Source: config-store/charts/demo-subchart/templates/configmap.yaml
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: release-name-override from subchart
+# ---
+# # Source: config-store/templates/from-subchart.yaml
+# # test value from subchart: release-name-override from parent
+```
+
 </details>
