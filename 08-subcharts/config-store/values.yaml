@@ -127,3 +127,10 @@ demo-subchart:
 
 global:
   defaultStorageClass: 'my-custom-storageclass'
+
+postgresql:
+  enabled: true
+
+tags: 
+  database: false
+  performance: false

@@ -434,4 +434,37 @@ helm template .
 # # test value from subchart: release-name-override from parent
 ```
 
+Undo changes.
+
+### 68. Conditionally enabling subcharts
+
+1. using `condition`
+2. using `tags`
+
+```yaml
+# ./08-subcharts/config-store/Chart.yaml
+dependencies:
+  - name: postgresql
+    version: "16.2.2"
+    repository: "https://charts.bitnami.com/bitnami"
+    # condition: postgresql.enabled
+    tags:
+      - database
+      - performance
+  - name: demo-subchart
+    version: "0.1.0"
+    tags:
+      - performance
+```
+
+```yaml
+# ./08-subcharts/config-store/values.yaml
+postgresql:
+  enabled: true
+
+tags: 
+  database: false
+  performance: false
+```
+
 </details>
