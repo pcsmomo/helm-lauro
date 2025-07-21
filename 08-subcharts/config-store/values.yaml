@@ -121,16 +121,3 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
-
-demo-subchart:
-  customValue: 'hello from config-store'
-
-global:
-  defaultStorageClass: 'my-custom-storageclass'
-
-postgresql:
-  enabled: true
-
-tags: 
-  database: false
-  performance: false
