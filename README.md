@@ -655,4 +655,32 @@ POST `http://127.0.0.1:55138/api/kv`
 
 If it is successful, it means the deployed postgres db works great!
 
+
+Now, delete all again.
+
+after uninstall `config-store`, we need to manually delete pvc and secret
+
+```sh
+helm uninstall config-store
+# release "config-store" uninstalled
+
+k get pvc
+# NAME                   STATUS   VOLUME                                     CAPACITY   ACCESS MODES   STORAGECLASS   VOLUMEATTRIBUTESCLASS   AGE
+# data-postgresql-db-0   Bound    pvc-71a43e17-24c5-4103-9c3c-1c080c18f39e   8Gi        RWO            standard       <unset>                 18d
+
+k delete pvc data-postgresql-db-0
+# persistentvolumeclaim "data-postgresql-db-0" deleted
+
+k get pvc
+# No resources found in default namespace.
+
+k get secret
+# NAME                    TYPE     DATA   AGE
+# custom-wp-credentials   Opaque   1      78d
+# postgres-creds          Opaque   2      18d
+
+k delete secret postgres-creds
+# secret "postgres-creds" deleted
+```
+
 </details>
