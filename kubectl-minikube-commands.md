@@ -40,4 +40,5 @@ kubectl get secret local-wp-wordpress -o jsonpath='{.data.wordpress-password}' |
 kubectl delete pvc data-local-wp-mariadb-0
 
 kubectl create secret generic custom-wp-credentials --from-literal wordpress-password=noahpassword
+kubectl create secret generic postgres-creds --from-env-file=.env
 ```

@@ -12,6 +12,10 @@
 - [Section 05. Creating Charts](./summary-05-creating-charts.md)
 - [Section 6: Go Template Deep-Dive](./summary-06-go-template.md)
 - Section 7 -> Find `helm-lauro-config-store` project
+- 08-subcharts-inc-demo
+  - before `69. Integrate PostgreSQL into our Kubernetes resources`
+- 08-subcharts
+  - 69. Integrate PostgreSQL into our Kubernetes resources
 
 <details open>
   <summary>Click to Contract/Expend</summary>
@@ -466,5 +470,189 @@ tags:
   database: false
   performance: false
 ```
+
+### 69. Integrate PostgreSQL into our Kubernetes resources
+
+Undo changes and `helm dependency update`
+
+#### Check artifact hub
+
+https://artifacthub.io/packages/helm/bitnami/postgresql?modal=values&path=auth
+
+use `existingSecret`
+
+create `.env` with passwords
+
+```sh
+# .env
+postgres-password=somerandomlongpostgrespassword
+password=config_store_password
+```
+
+```sh
+kubectl create secret generic postgres-creds --from-env-file=.env
+# error: failed to create secret Post "https://127.0.0.1:62495/api/v1/namespaces/default/secrets?fieldManager=kubectl-create&fieldValidation=Strict": dial tcp 127.0.0.1:62495: connect: connection refused
+
+minikube start
+
+kubectl create secret generic postgres-creds --from-env-file=.env
+# secret/postgres-creds created
+```
+
+```sh
+k get secret
+# NAME                    TYPE     DATA   AGE
+# custom-wp-credentials   Opaque   1      59d
+# postgres-creds          Opaque   2      43s
+
+k describe secret postgres-creds
+# Name:         postgres-creds
+# Namespace:    default
+# Labels:       <none>
+# Annotations:  <none>
+
+# Type:  Opaque
+
+# Data
+# ====
+# postgres-password:  30 bytes
+# password:           21 bytes
+```
+
+```sh
+# ./08-subcharts/config-store
+
+helm template .
+# # Source: config-store/charts/postgresql/templates/primary/statefulset.yaml
+# apiVersion: apps/v1
+# kind: StatefulSet
+# metadata:
+# # ...
+#           env:
+#             # Authentication
+#             - name: POSTGRES_USER
+#               value: "config_store_user"
+#             - name: POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-creds
+#                   key: password
+#             - name: POSTGRES_POSTGRES_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-creds
+#                   key: postgres-password
+#             - name: POSTGRES_DATABASE
+#               value: "config_store_db"
+```
+
+#### add env variables to `deployment.yaml`
+
+- for `DB_HOST` look at `https://artifacthub.io/packages/helm/bitnami/postgresql?modal=template&template=primary/svc.yaml`
+  - (I don't understnad)
+
+```sh
+helm template .
+# # Source: config-store/templates/deployment.yaml
+# apiVersion: apps/v1
+# kind: Deployment
+#           env:
+#             - name: PORT.
+#               value: 80
+#             - name: DB_USER
+#               value: config_store_user
+#             - name: DB_NAME
+#               value: config_store_db
+#             - name: DB_PASSWORD
+#               valueFrom:
+#                 secretKeyRef:
+#                   name: postgres-creds
+#                   key: password
+#             - name: DB_URL
+#               value: postgresql://$(DB_USER):$(DB_PASSWORD)@postgresql-db:5432/$(DB_NAME)
+
+helm lint .
+# ==> Linting .
+# [INFO] Chart.yaml: icon is recommended
+
+# 1 chart(s) linted, 0 chart(s) failed
+
+helm install config-store .
+# NAME: config-store
+# LAST DEPLOYED: Sat Aug  9 18:02:00 2025
+# NAMESPACE: default
+# STATUS: deployed
+# REVISION: 1
+# NOTES:
+# 1. Get the application URL by running these commands:
+#   export NODE_PORT=$(kubectl get --namespace default -o jsonpath="{.spec.ports[0].nodePort}" services config-store)
+#   export NODE_IP=$(kubectl get nodes --namespace default -o jsonpath="{.items[0].status.addresses[0].address}")
+#   echo http://$NODE_IP:$NODE_PORT
+```
+
+Check the pods and logs
+
+```sh
+k get pods --watch
+# NAME                            READY   STATUS    RESTARTS      AGE
+# config-store-755c9cb6f9-bvxld   1/1     Running   2 (53s ago)   56s
+# postgresql-db-0                 1/1     Running   0             56s
+
+k logs config-store-755c9cb6f9-bvxld
+# Executing (default): SELECT 1+1 AS result
+# DB connection has been established successfully.
+# Executing (default): SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'KVs'
+# Executing (default): CREATE TABLE IF NOT EXISTS "KVs" ("id"   SERIAL , "key" VARCHAR(255) NOT NULL UNIQUE, "value" VARCHAR(255) NOT NULL, "createdAt" TIMESTAMP WITH TIME ZONE NOT NULL, "updatedAt" TIMESTAMP WITH TIME ZONE NOT NULL, PRIMARY KEY ("id"));
+# Executing (default): SELECT i.relname AS name, ix.indisprimary AS primary, ix.indisunique AS unique, ix.indkey AS indkey, array_agg(a.attnum) as column_indexes, array_agg(a.attname) AS column_names, pg_get_indexdef(ix.indexrelid) AS definition FROM pg_class t, pg_class i, pg_index ix, pg_attribute a WHERE t.oid = ix.indrelid AND i.oid = ix.indexrelid AND a.attrelid = t.oid AND t.relkind = 'r' and t.relname = 'KVs' GROUP BY i.relname, ix.indexrelid, ix.indisprimary, ix.indisunique, ix.indkey ORDER BY i.relname;
+# DB synchronized and tables created, start server.
+# Server is running on port 80
+```
+
+Expose the service
+
+```sh
+k get svc
+# NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+# config-store       NodePort    10.104.183.146   <none>        80:31518/TCP   3m34s
+# kubernetes         ClusterIP   10.96.0.1        <none>        443/TCP        85d
+# postgresql-db      ClusterIP   10.103.185.141   <none>        5432/TCP       3m34s
+# postgresql-db-hl   ClusterIP   None             <none>        5432/TCP       3m34s
+
+minikube service config-store
+# |-----------|--------------|-------------|---------------------------|
+# | NAMESPACE |     NAME     | TARGET PORT |            URL            |
+# |-----------|--------------|-------------|---------------------------|
+# | default   | config-store | http/80     | http://192.168.49.2:31518 |
+# |-----------|--------------|-------------|---------------------------|
+# 🏃  Starting tunnel for service config-store.
+# |-----------|--------------|-------------|------------------------|
+# | NAMESPACE |     NAME     | TARGET PORT |          URL           |
+# |-----------|--------------|-------------|------------------------|
+# | default   | config-store |             | http://127.0.0.1:55138 |
+# |-----------|--------------|-------------|------------------------|
+# 🎉  Opening service default/config-store in default browser...
+# ❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+```
+
+Keep the terminal open and navigate the browser or test it with `postman`
+
+GET `http://127.0.0.1:55138/api/kv`
+
+```json
+{
+  "data": []
+}
+```
+
+POST `http://127.0.0.1:55138/api/kv`
+
+```json
+{
+  "key": "primary",
+  "value": "yellow"
+}
+```
+
+If it is successful, it means the deployed postgres db works great!
 
 </details>
