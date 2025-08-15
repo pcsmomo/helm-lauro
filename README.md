@@ -683,4 +683,35 @@ k delete secret postgres-creds
 # secret "postgres-creds" deleted
 ```
 
+## Section 9: Advanced Topics
+
+### 71. Accessing files: Introduction
+
+```sh
+mkdir 09-01-accessing-files
+cd 09-01-accessing-files
+touch Chart.yaml
+mkdir templates files
+```
+
+```sh
+helm template .
+# ---
+# # Source: accessing-files/templates/configmap.yaml
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: release-name-accessing-files
+# data:
+#   application.properties: |-
+#     server.port=8080
+
+#     logging.level.root=INFO
+```
+
+```yaml
+{{- .Files.Get "files/application.properties" | nindent 4 }}
+{{ .Files.Get "files/application.properties" | indent 4 }}
+```
+
 </details>
