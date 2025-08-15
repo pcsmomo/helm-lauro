@@ -688,6 +688,7 @@ k delete secret postgres-creds
 ### 71. Accessing files: Introduction
 
 ```sh
+# ./09-01-accessing-files
 mkdir 09-01-accessing-files
 cd 09-01-accessing-files
 touch Chart.yaml
@@ -717,6 +718,27 @@ helm template .
 
 ### 72. Accessing files: Glob patterns
 
+```sh
+helm template .
+# ---
+# # Source: accessing-files/templates/configmap.yaml
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: release-name-accessing-files
+# data:
+#   files/application.properties: |-
+#     server.port=8080
 
+#     logging.level.root=INFO
+#   files/dev.properties: |-
+#     server.port=8080
+
+#     logging.level.root=DEBUG
+#   files/prod.properties: |-
+#     server.port=8081
+
+#     logging.level.root=INFO
+```
 
 </details>
