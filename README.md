@@ -714,4 +714,9 @@ helm template .
 {{ .Files.Get "files/application.properties" | indent 4 }}
 ```
 
+
+### 72. Accessing files: Glob patterns
+
+
+
 </details>
